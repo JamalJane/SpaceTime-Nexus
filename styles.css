@@ -1,37 +1,15 @@
-/* ============================
-   Spacetime Nexus — styles.css
-   - All theme variables are here so you can tweak palette globally.
-   - Panels share same base and glowing purple borders with blue accents.
-   - Comments explain which classes control hover/active/selected states.
-   ============================ */
-
-/* THEME VARIABLES (single source of truth)
-   - Change these to re-theme quickly.
-   - --bg: page background (matte black)
-   - --panel: panels/cards background (slightly lighter)
-   - --purple / --purple-strong: gradient / glow colors
-   - --blue: electric accent color for active states
-*/
 :root{
-  --bg: #070707;              /* matte black page background */
-  --panel: #0b0b11;           /* panel surface */
-  --purple: #5b2c83;          /* primary purple */
-  --purple-strong: #2a0b3a;   /* deep purple for gradients */
-  --purple-glow: rgba(138,43,226,0.10); /* soft glow */
-  --blue: #00b3ff;            /* electric blue accent (active/today) */
-  --muted: #98a3b1;          /* muted text */
-  --radius: 12px;
-  --panel-border: rgba(120,75,180,0.20);
+  --bg:#070707; --panel:#0b0b11; --purple:#5b2c83; --purple-strong:#2a0b3a;
+  --purple-glow: rgba(138,43,226,0.10); --blue:#00b3ff; --muted:#98a3b1;
+  --radius:12px; --panel-border: rgba(120,75,180,0.20);
 }
 
-/* BASE */
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:#eaf3ff;font-family:Inter,system-ui,Arial;-webkit-font-smoothing:antialiased}
 a{color:inherit}
 button{font:inherit}
 .container{max-width:1200px;margin:0 auto;padding:0 18px}
 
-/* HEADER */
 .header{position:fixed;top:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--bg);border-bottom:1px solid rgba(255,255,255,0.03);z-index:50}
 .brand{display:flex;flex-direction:column}
 .product-name{font-weight:800}
@@ -41,27 +19,21 @@ button{font:inherit}
 .nav-link:hover{color:var(--blue);background:linear-gradient(160deg, rgba(58,15,91,0.12), rgba(0,0,0,0.06));transform:translateY(-2px)}
 .nav-link.active{color:#fff;background:linear-gradient(90deg,var(--purple-strong),var(--blue));box-shadow:0 10px 30px rgba(0,179,255,0.06)}
 
-/* hamburger mobile control */
 .hamburger{display:none;background:none;border:0;color:var(--muted);font-size:20px}
 @media (max-width:780px){ .nav{display:none} .hamburger{display:block} .header{padding:8px} }
 
-/* MAIN / PAGES */
 .app{padding-top:86px;padding-bottom:40px}
 .page{display:none;padding:18px}
 .page.active{display:block}
 
-/* HERO */
 .hero{max-width:1100px;margin:0 auto 18px;padding:22px;border-radius:14px;background:linear-gradient(180deg, rgba(58,15,91,0.06), rgba(0,0,0,0.0))}
-.hero .lead{color:var(--muted);margin-top:8px}
+.lead{color:var(--muted);margin-top:8px}
 .hero-actions{display:flex;gap:10px;margin-top:12px}
 
-/* BUTTONS */
 .btn{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 12px;border-radius:10px;cursor:pointer;transition:all .16s}
 .btn:hover{color:#fff;transform:translateY(-2px)}
 .btn.primary{background:linear-gradient(90deg,var(--purple),var(--blue));color:#fff;border:0;box-shadow:0 8px 28px rgba(0,179,255,0.06)}
 
-/* GRID / PANELS (dashboard) */
-/* Responsive grid: mobile 1 col, tablet 2, desktop 3. */
 .dashboard-grid{display:grid;gap:16px;max-width:1400px;margin:18px auto;grid-template-columns:1fr}
 @media(min-width:720px){ .dashboard-grid{grid-template-columns:repeat(2,1fr)} }
 @media(min-width:1100px){ .dashboard-grid{grid-template-columns:repeat(3,1fr)} }
@@ -71,24 +43,13 @@ button{font:inherit}
 .panel.small{display:flex;gap:8px;align-items:center}
 .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 
-/* Calendar styles */
-/* - .calendar-grid displays small preview cells
-   - .today uses electric blue border & subtle glow
-   - .selected uses purple outline for selection
-*/
 .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .calendar-cell{background:linear-gradient(180deg,rgba(58,15,91,0.03),rgba(0,0,0,0.02));min-height:68px;padding:8px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,0.02);transition:transform .12s,box-shadow .14s}
 .calendar-cell:hover{transform:translateY(-4px)}
 .calendar-cell.today{border:1px solid rgba(0,179,255,0.2);box-shadow:0 8px 26px rgba(0,179,255,0.06)}
-.calendar-cell.selected{outline:2px solid rgba(138,43,226,0.6);box-shadow:0 8px 24px rgba(138,43,226,0.06);}
-
-/* small event badge inside a calendar cell */
+.calendar-cell.selected{outline:2px solid rgba(138,43,226,0.6);box-shadow:0 8px 24px rgba(138,43,226,0.06)}
 .event-badge{display:inline-block;background:var(--blue);width:8px;height:8px;border-radius:99px;margin-left:6px}
 
-/* Kanban (HTML5 DnD)
-   - column.drag-over shows electric-blue dashed border to indicate drop target
-   - .task.dragging adds a visual lift
-*/
 .kanban{display:flex;gap:10px;align-items:flex-start;overflow:auto;padding-bottom:6px}
 .kanban-column{min-width:240px;padding:8px;border-radius:10px;background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(6,6,8,0.6));border:1px solid rgba(138,43,226,0.04)}
 .kanban-column h3{margin:0 0 8px;color:#fff}
@@ -97,7 +58,6 @@ button{font:inherit}
 .kanban-column.drag-over{box-shadow:0 12px 40px rgba(0,179,255,0.06);border:1px dashed rgba(0,179,255,0.12);transform:translateY(-4px)}
 .kanban-task.dragging{opacity:0.9;transform:scale(1.02);box-shadow:0 18px 40px rgba(0,179,255,0.08)}
 
-/* Chat UI */
 .chat-window, .chat-full{max-height:320px;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:transparent;border-radius:8px}
 .chat-bubble{max-width:75%;padding:10px 12px;border-radius:12px;color:#fff;display:inline-block}
 .chat-bubble.you{align-self:flex-end;background:linear-gradient(90deg,rgba(58,15,91,0.95),rgba(58,15,91,0.85));box-shadow:0 8px 26px rgba(138,43,226,0.06)}
@@ -105,22 +65,18 @@ button{font:inherit}
 .chat-controls{display:flex;gap:8px;margin-top:8px}
 .chat-input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#eaf3ff}
 
-/* Skills grid & cards */
 .skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 @media(min-width:700px){ .skills-grid{grid-template-columns:repeat(3,1fr)} }
 .skill-card{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(0,0,0,0.5),rgba(8,8,10,0.6));border:1px solid rgba(255,255,255,0.02);cursor:pointer;transition:transform .12s,box-shadow .12s}
 .skill-card:hover{transform:translateY(-6px);box-shadow:0 12px 36px rgba(0,179,255,0.06)}
 .skill-card.selected{border:1px solid var(--purple);box-shadow:0 10px 30px rgba(138,43,226,0.06)}
 
-/* Map area & pins */
-/* Pins are neon-blue by default (var(--blue)); when selected they pulse purple via animation */
 .map-area{height:260px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(4,4,6,0.9),rgba(8,8,12,0.6));display:flex;align-items:center;justify-content:center}
 .pin{cursor:pointer;transition:transform .22s,filter .22s}
 .pin .core{fill:var(--blue);filter:drop-shadow(0 8px 24px rgba(0,179,255,0.06))}
 .pin.selected .core{fill:var(--purple);animation:pulse 1.6s infinite;filter:drop-shadow(0 12px 40px rgba(138,43,226,0.12))}
 @keyframes pulse{0%{transform:scale(1);opacity:1}70%{transform:scale(1.14);opacity:0.7}100%{transform:scale(1);opacity:1}}
 
-/* Utilities */
 .note{color:var(--muted);font-size:13px;margin-top:6px}
 .small{font-size:13px;color:var(--muted)}
 .page-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
