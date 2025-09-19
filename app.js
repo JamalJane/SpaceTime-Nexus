@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* ---------------- Kanban ---------------- */
+  /* ---------------- To-Do List ---------------- */
   function createTask(text) {
     const el = document.createElement("div");
     el.className = "kanban-task";
