@@ -1,0 +1,156 @@
+﻿The Database Schema (Relational)
+This schema uses a Star-Lock logic where satellite metadata is static, but telemetry and market values are highly relational.
+Table A: satellites (The Catalog)
+Defines the permanent identity of every tracked object.
+Column Name
+	Data Type
+	Constraints
+	Description
+	id
+	UUID
+	Primary Key
+	Internal NEXUS unique identifier.
+	norad_id
+	Integer
+	Unique, Indexed
+	The official NORAD Catalog Number (e.g., 25544).
+	name
+	String
+	Not Null
+	Common name (e.g., "ZENIT-2 ROCKET BODY").
+	object_type
+	Enum
+	DEBRIS, PAYLOAD
+	Categorization for filtering.
+	launch_date
+	Timestamp
+	-
+	When the object entered orbit.
+	dry_mass_kg
+	Float
+	-
+	Estimated mass without fuel (used for NRV math).
+	material_profile
+	JSONB
+	-
+	Percentage breakdown (Aluminum: 70%, Gold: 2%).
+	Table B: telemetry_logs (Orbital States)
+Stores the SGP4-derived positions. This table is high-churn.
+Column Name
+	Data Type
+	Constraints
+	Description
+	id
+	BigInt
+	Primary Key
+	Serial ID for time-series tracking.
+	sat_id
+	UUID
+	Foreign Key
+	Link to satellites.id.
+	epoch
+	Timestamp
+	Indexed
+	The exact time of the TLE measurement.
+	tle_line1
+	String
+	-
+	Raw TLE data for local SGP4 propagation.
+	tle_line2
+	String
+	-
+	Raw TLE data for local SGP4 propagation.
+	altitude_km
+	Float
+	-
+	Calculated altitude at epoch.
+	decay_status
+	Boolean
+	-
+	True if the object is expected to burn up < 30 days.
+	Table C: market_prices (The Bounty Feed)
+Real-time pricing for the salvage economy.
+Column Name
+	Data Type
+	Constraints
+	Description
+	id
+	Serial
+	Primary Key
+	-
+	metal_type
+	Enum
+	AL, TI, AU, CU
+	Aluminum, Titanium, Gold, Copper.
+	price_per_kg
+	Decimal
+	Not Null
+	Current price in USD (indexed to 2026 markets).
+	last_updated
+	Timestamp
+	Default Now()
+	When the API last synced with the LME.
+	Table D: missions (User Persistence)
+Stores the current active intercepts and user "Hangar" data.
+Column Name
+	Data Type
+	Constraints
+	Description
+	id
+	UUID
+	Primary Key
+	Mission ID.
+	target_id
+	UUID
+	Foreign Key
+	Link to satellites.id.
+	status
+	Enum
+	PLOTTED, LOCKED
+	Current mission state (Sequential flow).
+	burn_delta_v
+	Float
+	-
+	Calculated Δv from the Lambert Solver.
+	profit_est
+	Decimal
+	-
+	Calculated Net Resource Value (NRV).
+	________________
+
+
+2. Relationships & Entity-Relationship Diagram (ERD)
+* One-to-Many (satellites → telemetry_logs): A single satellite has thousands of telemetry points over time to track its decay.
+* Many-to-Many (satellites ↔ market_prices): Indirectly linked via the Material Profile JSON. The backend joins the material percentages in the satellites table with the price_per_kg in the market_prices table to generate the live Bounty Value.
+* One-to-One (missions → satellites): Each mission locks onto a single target until completion or failure.
+________________
+
+
+3. API Dependencies & Limitations
+API Source
+	Purpose
+	Frequency
+	Limitations / Quotas
+	Space-Track.org
+	TLE Data
+	1 Sync/Day
+	Strict Limit: Max 20 requests per minute. Batch downloads required.
+	CelesTrak GP
+	Orbital Data
+	1 Sync/Day
+	No rate limit, but prefers JSON over CSV for Alpha-5 IDs.
+	Metals-API
+	Market Pricing
+	1 Sync/Hour
+	100 requests/day (Free Tier). We cache values in market_prices.
+	NASA Stars API
+	Navigation
+	1 Sync/Lifetime
+	Heavy payload; data is downloaded once and stored in a JSON blob.
+	________________
+
+
+4. Backend Logic Flow (The "Cron" Jobs)
+1. TLE Sync (02:00 UTC): The backend polls Space-Track for all satellites. It filters for objects >100kg (salvageable mass) and updates the telemetry_logs.
+2. NRV Recalculation (Every Hour): The system takes the market_prices, multiplies them by the material_profile of every satellite, and updates a Redis Cache for the frontend to show "Live Bounties" without hitting the main DB.
+3. Propagation Buffer: To keep the website animated at 60FPS, the backend doesn't send every position. It sends the TLE Lines, and the frontend's Worker Thread runs the SGP4 math locally.

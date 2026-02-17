@@ -1,0 +1,98 @@
+﻿Core Language & Environment
+* Language: TypeScript v5.4.0 (Strict Mode enabled for orbital math safety).
+* Runtime: Node.js v22.x (LTS).
+* Build Tool: Vite v6.0.0 (Utilizing SWC for ultra-fast Hot Module Replacement).
+* Framework: React v19.0.0 (Using the new use and Action hooks for data fetching).
+________________
+
+
+2. UI & Interaction Layer (The "React Bits" Stack)
+These are the specific components and motion libraries required to build the interface described in the PRD.
+Library
+	Version
+	Purpose
+	Framer Motion
+	v12.0.0
+	Powers the Antigravity debris physics and ScrollReveal transitions.
+	GSAP (GreenSock)
+	v3.12.5
+	Handles the power3.out easing in the CardNav component.
+	Tailwind CSS
+	v4.0.0
+	Utility-first styling for the HUD and Terminal overlays.
+	Lucide React
+	v0.450.0
+	Iconography for the command interface (Targeting, Fuel, Satellite icons).
+	Three.js
+	r170
+	The underlying 3D engine for the Earth and starfield rendering.
+	@react-three/fiber
+	v9.0.0
+	React bridge for the Three.js 3D viewport.
+	________________
+
+
+3. Aerospace & Physics Engine
+The core "brains" of the app. These packages handle the heavy mathematical equations defined in the PRD.
+* Satellite.js (v5.0.0): * Role: The primary implementation of the SGP4 Propagation algorithm.
+   * Function: Converts TLE (Two-Line Element) data into ECI (Earth-Centered Inertial) coordinates.
+* CesiumJS (v1.120):
+   * Role: High-fidelity 3D geospatial mapping.
+   * Function: Renders the 4K oblate spheroid Earth and manages the 3D debris tilesets.
+* Lambert-Solver (v2.1.0):
+   * Role: Solves the Lambert Intercept Problem.
+   * Function: Calculates velocity vectors (Δv) for the transfer arcs.
+* Math.js (v13.0.0):
+   * Role: High-precision arithmetic for the Tsiolkovsky and NRV equations.
+   * Function: Prevents floating-point errors in deep-space distance calculations.
+________________
+
+
+4. AI & Perception Layer
+Required for the Star-Lock Terminal calibration sequence.
+* TensorFlow.js (v4.20.0):
+   * Role: Real-time pattern recognition.
+   * Function: Processes the "Viewfinder" pixels to identify constellations using the Geometric Triangle Matching logic.
+* @tensorflow-models/custom-model: * Role: The specific weights for star-mapping.
+   * Function: Pre-trained on the Hipparcos star catalog.
+________________
+
+
+5. API Dependencies (Live Data)
+   * NEXUS: TECHNICAL IMPLEMENTATION MANIFEST1. Environment Configuration (.env)Agent Instruction: Create a .env file at the root. Do not commit this to GitHub. Apply these keys exactly as written to the Vercel Dashboard Environment Variables.Bash# --- ORBITAL DATA (Space-Track) ---
+   * SPACETRACK_USER="basher123.1236@gmail.com"
+   * SPACETRACK_PASS="BashdaKid0910910"
+   *    * # --- NAVIGATION DATA (API Ninjas) ---
+   * NINJA_STARS_KEY="vSvYVSUnAmXpMjfCf7OHsG8l5vIDeqW96tRK1ggU"
+   *    * # --- ECONOMIC DATA (MetalPriceAPI) ---
+   * # Note: Calculation requires reciprocal (1/value)
+   * METALPRICE_API_KEY="161a96deb37dc8d29d37ec41dad33a04"
+   *    * # --- NASA DATA ---
+   * NASA_API_KEY="AnOB1lZOXHWsvJEu8ihH2h2Q3otbXD2VRzNJde0v"
+   * 2. API Integration & Implementation LogicA. Space-Track Auth ClientWhere: src/lib/services/spaceTrack.tsInstruction: Implement a session-persistent client. The agent must POST to the login URL once, capture the set-cookie header, and reuse that cookie for all subsequent requests to avoid IP throttling.TypeScript// Agent: Use axios-cookiejar-support or manual header injection
+   * const authPayload = {
+   *   identity: process.env.SPACETRACK_USER,
+   *   password: process.env.SPACETRACK_PASS
+   * };
+   *    * // 1. Initial Handshake to obtain Session Cookie
+   * const login = await axios.post('https://www.space-track.org/ajaxauth/login', authPayload);
+   * const sessionCookie = login.headers['set-cookie'];
+   *    * // 2. Subsequent Data Query (using the cookie)
+   * const satelliteData = await axios.get('https://www.space-track.org/basicspacedata/query/class/gp/format/json', {
+   *   headers: { Cookie: sessionCookie }
+   * });
+   * B. The Bounty Engine (MetalPriceAPI)Where: src/hooks/useBounty.tsInstruction: Apply the reciprocal logic required by the provider.Formula: $$ActualPrice = 1 / API\_Value$$Implementation: ```typescriptconst rawRate = apiResponse.rates['XAU']; // Example for Goldconst pricePerUnit = 1 / rawRate;const netResourceValue = debrisMass * pricePerUnit;
+   * C. Star-Lock AI (API Ninjas)Where: src/components/terminal/StarLock.tsxInstruction: Inject the NINJA_STARS_KEY into the request headers for constellation verification.Header Key: X-Api-KeyEndpoint: https://api.api-ninjas.com/v1/stars?constellation={name}3. UI & Animation Guidelines (Motion Stack)Instruction: The website must be High-Fidelity Animated. No static layouts.Antigravity Background: Use InstancedMesh in Three.js for 10,000 shards. Shards must react to mouse position with a 200px repulsion radius using Framer Motion and Raycasting.ScrollReveal: The Dr. Hiluluk quote must use a "Blur-to-Focus" stagger. Letters transition from blur(20px), opacity: 0 to blur(0px), opacity: 1 as the user scrolls.CardNav: Navigation cards expand upward using GSAP power3.out. Borders must "draw" themselves using SVG path animations upon hover.4. Database Schema (Supabase/PostgreSQL)Instruction: Initialize the following tables via the SQL Editor.TablePrimary Keys/Relationshipssatellitesid (UUID), norad_id (Unique), material_profile (JSONB)telemetry_logssat_id (FK), tle_line1, tle_line2, epochmarket_pricesmetal_type (Enum), price_per_kg (Decimal)Final Agent Directives:Strict Mode: All TypeScript interfaces must match the CelesTrak and Space-Track JSON responses exactly.Performance: Offload the satellite.js SGP4 math to a Web Worker to maintain 60FPS.Automation: Use Vercel Cron Jobs to trigger the Space-Track sync nightly at 02:00 UTC.Vite Environment Variables Best Practices
+________________
+
+
+6. State Management
+* Zustand (v5.0.0): * Role: Managing the "Global Command State."
+   * Store Sections: useTargetStore (currently selected debris), useMissionStore (calculated Delta-V and Fuel), and useAuthStore (Syndicate user data).
+________________
+
+
+7. Development Tools
+* Eslint: v9.x
+* Prettier: v3.x
+* PostCSS: v8.4.x
