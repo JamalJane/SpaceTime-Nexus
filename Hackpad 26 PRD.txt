@@ -1,0 +1,67 @@
+﻿PRD: NEXUS (Network for EX-orbital Utilization & Salvage)
+1. Project Overview
+NEXUS is an orbital command-and-control platform designed to transform space debris from a "forgotten" liability into a high-value resource. The platform treats Earth's orbit as a graveyard of "pre-positioned" raw materials, providing the infrastructure to identify, value, and simulate the recovery of defunct satellites and rocket bodies.
+The Philosophy: “A satellite only truly dies when it is forgotten.” NEXUS is the interface that remembers, enabling a sustainable circular economy in the cosmos.
+________________
+
+
+2. Project Scope
+In-Scope (Comprehensive Build)
+* Real-Time Orbital Propagation Engine: A backend/frontend system utilizing the SGP4 algorithm to simulate the current position of 10,000+ objects, accounting for Earth's non-spherical shape and atmospheric interference.
+* The Bounty Dashboard: A financial interface that maps metadata (NORAD IDs) to material estimates, providing a real-time marketplace for space scrap values.
+* Celestial Navigation AI (Star-Lock): A computer-vision simulation requiring users to calibrate craft orientation by identifying star patterns through a virtual viewfinder.
+* Maneuver & Intercept Planner: A tool to plot orbital transfers between a scavenger craft and target debris, including time-of-flight and fuel cost analysis.
+* Atmospheric Decay Tracker: A system that monitors the "Perigee" of objects, flagging those with imminent reentry risks for "Priority Salvage."
+* Integrated React UI Suite: Implementation of CardNav (System Management), Antigravity (Dynamic Debris Particles), and ScrollReveal (Narrative Entry).
+* Market Price Integration: Real-time indexing of Aluminum, Titanium, and Gold scrap values to feed the Bounty Engine.
+Out-of-Scope (Constraints)
+* Hardware Kinematics: No coding of robotic arm joint torques, end-effector grasping logic, or "harpoon" deployment physics.
+* Atmospheric Flight: No simulation of the initial launch phase (Earth-to-Orbit) or aerodynamic flight.
+* Debris Capture Physics: No modeling of the physical collision or "soft docking" dynamics between two moving masses.
+* International Legal Management: No logic for handling "Space Law" treaties, ownership disputes, or UN liability registrations.
+* Live Satellite Imaging: No integration of actual live optical or radar feeds from Earth-based stations; all visual data is simulated via mathematical models.
+* Active Debris Removal (ADR) Execution: NEXUS is a command and planning platform; it does not provide the actual telemetry link to physical de-orbiting hardware.
+________________
+
+
+3. The Mathematics of the Void (Algorithms & Equations)
+NEXUS relies on these five pillars of orbital mechanics and economics. Every equation below is a required functional component.
+I. SGP4 Propagation (Positioning)
+To find a "forgotten" object, we must account for the Earth's equatorial bulge (J2​ perturbation).
+n=n0​[1+23​J2​p2RE2​​(1−23​sin2i)1−e2​]
+Where:
+* n0​: Mean motion.
+* J2​: Second dynamic form factor (1.0826×10−3).
+* RE​: Earth's equatorial radius.
+* p: Semi-parameter a(1−e2).
+II. Lambert’s Theorem (The Intercept)
+Calculating the elliptical path between the scavenger and the debris over a specific time (Δt).
+Δt=μa3​​[(ψ−sinψ)−(η−sinη)]
+This determines the semi-major axis (a) of the transfer orbit, allowing NEXUS to calculate the required velocity vectors.
+III. Tsiolkovsky Rocket Equation (The Fuel Budget)
+Determines if a mission is physically possible given the craft's current mass and fuel.
+Δv=Isp​⋅g0​⋅ln(mfinal​minitial​​)
+* Isp​: Specific impulse (engine efficiency).
+* g0​: Standard gravity (9.80665m/s2).
+* Δv: The total change in velocity required for the maneuver.
+IV. Net Resource Value (The Bounty Formula)
+The core economic logic that determines the profit of a salvage mission.
+NRV=(i=1∑n​(Mi​⋅Pi​))−(Δv⋅Cfuel​)−(Ocost​⋅T)
+Where:
+* Mi​: Estimated mass of material (Aluminum, Titanium, etc.).
+* Pi​: Market Price per kg of material.
+* Cfuel​: Cost per unit of velocity change.
+* Ocost​⋅T: The overhead cost over the duration of the mission.
+V. Celestial Orientation (The Star-Lock Quaternions)
+To navigate without GPS, the AI identifies star triangles to solve for the craft's attitude.
+cosθ=∥A∥∥B∥A⋅B​
+The AI then converts these angles into a orientation quaternion q to align the 3D HUD:
+q=cos(θ/2)+(ux​i+uy​j+uz​k)sin(θ/2)
+________________
+
+
+4. Success Criteria
+* Telemetry Accuracy: Propagation error must remain <1% over a 24-hour simulation window.
+* AI Robustness: Star-Lock must achieve a coordinate match with >90% confidence even with simulated sensor noise.
+* UX Performance: Dashboard must render the Earth and 10,000+ points of interest at a stable 60FPS.
+* Logic Integrity: The Bounty Engine must prevent "Mission Start" if the Δv required exceeds the calculated fuel capacity.

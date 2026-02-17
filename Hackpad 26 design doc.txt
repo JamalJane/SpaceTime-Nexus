@@ -1,0 +1,123 @@
+﻿The Color System (Hex Codes)
+Element
+	Hex Code
+	Description
+	The Void (Primary BG)
+	#050505
+	A "Vantablack" variant. Absolute black for maximum contrast.
+	Surface (Card BG)
+	#0D0D0D
+	Slightly lifted black for UI cards to create depth.
+	Signal White (Text)
+	#F2F2F2
+	Off-white to reduce eye strain against the pure black.
+	Bounty Gold (Highlight)
+	#FFD700
+	Used for "High-Value" targets and profitable mission markers.
+	System Green (Safety)
+	#00FF41
+	"Matrix" green for successful locks and "Go" fuel status.
+	Hazard Red (Warning)
+	#FF3131
+	For "No-Go" fuel status and atmospheric decay warnings.
+	Neutral Gray (HUD)
+	#404040
+	For grid lines, scales, and non-essential telemetry.
+	________________
+
+
+2. Atmospheric Background & Motion
+The background is not a static image; it is a live, reactive particle system.
+The Antigravity Background
+* Visuals: A field of 10,000+ geometric fragments (triangles, shards, and dust).
+* Behavior: The fragments do not float randomly. They are grouped into "Orbital Shells" (concentric rings).
+* Interaction: When the user selects a page in the CardNav, the particles react.
+   * About Page: Particles slow down to a 0.1x velocity, creating a calm, reflective state.
+   * Terminal Page: Particles accelerate and align into linear "streaks," simulating high-speed travel or data processing.
+* Physics: Fragments exhibit "Antigravity"—they move away from the user's cursor but gravitate toward the center of the Earth 3D model.
+The ScrollReveal Narrative
+* Animation: Text does not just fade in; it "materializes."
+* Blur Logic: Each word starts at a blur(10px) and an opacity of 0. As the user scrolls, the blur reduces to 0px and opacity hits 1.
+* The "One Piece" Quote: Centered in the middle of the viewport. No other UI elements are visible during this phase. This is a "Zen Mode" entry.
+________________
+
+
+3. Layout & Spacing (The HUD Architecture)
+NEXUS uses a "Framed Viewport" layout. The center is always for 3D visuals; the periphery is for command data.
+The Master Grid
+* Outer Margin: 24px padding around the entire viewport to create a "Goggles" or "Helmet" feel.
+* The Header (Top Left): * Displays the NEXUS Syndicate Logo (Vector White).
+   * Telemetry: Current UTC time and "Orbital Density" percentage.
+* The Target Sidebar (Right Side):
+   * Width: 380px.
+   * Style: Border-left: 1px solid #404040. Semi-transparent #0D0D0D background (glassmorphism with 10% blur).
+   * Content: This is where the Bounty Engine data lives. High-contrast typography for the USD values.
+The Navigation Hub (Bottom Center)
+* Component: CardNav.
+* Layout: A horizontal "Pill" container.
+* Spacing: Each navigation item has a 12px gap.
+* The Expansion: When a card is clicked, it expands upward using power3.out easing. The expanded card should never exceed 60% of the screen height, ensuring the Earth is always visible behind it.
+________________
+
+
+4. UI Component Aesthetics
+Hero bar for the hero bar use the video file. 
+Typography
+* Primary Header: "Inter" (Bold, Uppercase) - Letter spacing: 2px.
+* Mono Data: "JetBrains Mono" - Used for all coordinates, hex values, and mathematical outputs (Lambert/Tsiolkovsky results).
+Buttons & Interactive States
+* The "Execute" Button: * Normal: Black background, 1px solid White border.
+   * Active (Locked): Pulsing Gold shadow (box-shadow: 0 0 15px #FFD700).
+   * Hover: Invert colors (White background, Black text).
+* The Viewfinder (Star-Lock):
+   * A perfect circle in the center of the screen with a 2px thin green crosshair.
+   * Corners of the screen feature "Brackets" [ ] that flicker when the AI is scanning.
+________________
+
+
+5. Page-Specific Guidelines
+The Marketplace (Salvage Ops)
+* List View: Minimalist rows. Each row height: 64px.
+* Visual Cue: Targets are color-coded. A "Zenit Rocket" might have a Gold border, while a small bolt has a Gray border.
+The Terminal (Intercept Planner)
+* The Slider: A custom #F2F2F2 track with a #FFD700 thumb.
+* The Path: The Lambert arc on the map should be a dashed line. As the user moves the slider, the dashes animate (crawling ants effect) to show the direction of travel.
+The Star-Lock Terminal
+* Background: The Earth is hidden. The background is a "Star Field" with a dark gray noise filter to simulate sensor grain.
+* AI Feedback: As stars enter the viewfinder, small text labels appear next to them: SCANNING..., MATCH_FOUND, AZIMUTH_LOCKED.
+________________
+
+
+6. Frontend Animation Principles
+1. Staggered Entry: Elements should never appear at once. Use a 0.05s stagger between list items.
+2. No Rigid Cuts: Every page transition must use a "Blur-out/Fade-in" or a "Slide-over" to maintain the feeling of a continuous software suite.
+3. Haptic Visuals: When a mathematical calculation is completed (e.g., Lambert Solver finishes), the HUD should give a subtle 1px "shake" to simulate the computer processing the heavy data.
+Core Animation Philosophy
+Every movement in NEXUS follows the "Physicality of Data" rule:
+* Weight: Elements move with slight inertia.
+* Energy: Light (glows, flickers) has a high-frequency jitter to simulate electrical power.
+* Depth: The 3D world (Three.js) and 2D UI (React) must be linked. If you rotate the Earth, the UI telemetry text should slightly "vibrate" to match the movement.
+________________
+
+
+2. Global Motion Framework
+A. The Antigravity Background (Three.js + Framer Motion)
+This is the "soul" of the website. It isn't just a video background; it’s a live particle simulation.
+* The Particles: 12,000 shards of #F2F2F2 (Signal White) floating in a #050505 (Obsidian) void.
+* Idle State: Particles drift at a speed of 0.02units/frame, rotating slowly on their Y-axis.
+* Interactive State: Using a custom hook, the particles follow the mouse cursor with a 1.5s lag, creating a "wake" behind the user's movements.
+* Page Transitions: When switching modules (e.g., from Home to Terminal), the particles perform a Radial Explosion:
+   1. All particles retract toward the Earth's center for 300ms.
+   2. They blast outward toward the camera, blurring into white streaks (blur-md).
+   3. They settle into the new page's layout configuration.
+B. ScrollReveal: The Cinematic Entry
+* Text Animation: Each character of the Dr. Hiluluk quote is wrapped in a <motion.span>.
+* Entrance: As the user scrolls, letters don't just fade; they "Focus." They start at scale: 1.5, filter: blur(20px), and opacity: 0. They settle into place at scale: 1, filter: blur(0px), and opacity: 1.
+* The Exit: Once the scroll hits the threshold, the entire quote undergoes a Chromatic Aberration effect (splitting into Red/Green/Blue channels) and dissolves into the 3D map.
+________________
+
+
+3. UI Component Motion Details
+The CardNav (Bottom Hub)
+* The "Hover" Reveal: When hovering over a card, it doesn't just grow. The Bounty Gold (#FFD700) border "draws" itself around the card's perimeter using an SVG path animation (stroke-dashoffset).
+* The "Active" Expand: Clicking

@@ -1,0 +1,67 @@
+﻿PART I: THE APP FLOW (The Global Logic)
+The NEXUS application operates on a Synchronous Operation Loop. While the user can navigate freely between informational cards, the technical progression (from selecting a target to executing a burn) is a gated, sequential workflow.
+1. The Onboarding Loop (Initialization)
+* The Handshake: Upon page load, the system initializes the 3D globe and starts the SGP4 Propagation Worker. This happens in the background while the user is still in the "Legacy" splash sequence.
+* The Narrative Gate: The user cannot bypass the ScrollReveal section on their first visit. This ensures the "Forgotten Satellite" philosophy is established. Once the final scroll is detected, a state change triggers the HUD_ENABLE event.
+* The HUD Landing: The camera "drops" from deep space to a Low Earth Orbit (LEO) view. The CardNav slides in from the bottom, and the Antigravity particles settle into their orbital shells.
+2. The Discovery Loop (Intelligence Gathering)
+* Scanning Phase: The user uses the Global Graveyard (Home) to find targets. This is a non-linear phase where the user can spin the globe, filter by altitude (LEO, MEO, GEO), or search by NORAD ID.
+* The Selection Event: When a user clicks a satellite, the app enters the Focus State. The camera locks onto the object, the background starfield dims, and the Bounty Engine side-panel populates with data.
+3. The Operation Loop (The Mission Sequence)
+This is a strict four-step sequence that the user must follow to complete a salvage:
+1. Identification (Salvage Ops): The user analyzes the material value (NRV) and "Commits" to the mission.
+2. Calculation (Intercept Planner): The user plots the Elliptical Transfer using the Lambert Solver. The app validates fuel levels via the Tsiolkovsky Equation.
+3. Calibration (Star-Lock Terminal): The user enters the AI Viewfinder to confirm the ship's orientation. The AI generates the Orientation Quaternions.
+4. Extraction (Mission Success): The "Execute Burn" command is triggered. The asset is "collected," the ledger is updated, and the user is reset to the Home state.
+________________
+
+
+PART II: THE PAGE ENCYCLOPEDIA (Detailed Functionality)
+PAGE 1: The Legacy Splash (The Entry)
+Purpose: To transform the website from a "page" into an "experience" using philosophical immersion.
+* Detailed Functionality: * Layer 0 (Background): A pitch-black CSS canvas.
+   * Layer 1 (The Narrative): The ScrollReveal component controls the opacity of the Dr. Hiluluk quote based on the scroll percentage.
+   * Soundscape (Logic): A low-frequency "space wind" ambient track starts at 10% volume and increases as the user scrolls deeper.
+   * The Glitch Exit: When the user hits 100% scroll, the text flickers with a "Signal Lost" animation, and the Z-Index of the 3D Globe is brought to the front.
+PAGE 2: Global Graveyard (The Main HUD)
+Purpose: The central 3D engine and data visualization hub.
+* Detailed Functionality:
+   * 3D Geospatial Viewer: Renders a high-resolution 4K Earth texture.
+   * Debris Field: 10,000+ individual points of light representing real satellites. Each point is an instance in a Three.js/Cesium point cloud.
+   * Real-Time Propagation: Every 500ms, the SGP4 Algorithm recalculates the X,Y,Z coordinates for every object to ensure they are moving in real-time.
+   * Interaction HUD: A minimalist overlay showing "Current Time (UTC)," "Total Debris Count," and "Scavenger Fuel Level."
+PAGE 3: Mission Profile (The Knowledge Base)
+Purpose: To explain the complex science behind the app to the user.
+* Detailed Functionality:
+   * The Syndicate Tab: A scrollable text area detailing the fictional 2026 "Debris Crisis" and the economic necessity of orbital recycling.
+   * The Physics Glossary: Hoverable terms (e.g., Apoapsis, Delta-V, Inclination) that show tooltips explaining the math used in the app.
+   * System Status: A diagnostic view showing the "Health" of the app's connection to the Space-Track API.
+PAGE 4: Salvage Ops (The Bounty Engine)
+Purpose: To turn orbital debris into a financial asset.
+* Detailed Functionality:
+   * Material Breakdown Panel: When a satellite is selected, this panel breaks the dry mass into Aluminum (60%), Titanium (30%), and Electronics/Gold (10%).
+   * Live Scrap Ticker: A scrolling marquee at the bottom of the card showing current Earth-based vs. Space-based metal prices.
+   * The NRV Calculator: A dynamic text field that updates the "Total Bounty Value" in real-time as the metal market prices fluctuate.
+   * Target Locking: A button that "pins" the current satellite, ensuring the camera follows it even if the user navigates away to the Intercept Planner.
+PAGE 5: Intercept Planner (The Calculation Terminal)
+Purpose: To provide the user with a "Flight Path" simulator based on real physics.
+* Detailed Functionality:
+   * Transfer Plotter: A visual representation of the elliptical path. As the user adjusts the "Time" slider, the Lambert Solver redraws the arc on the globe.
+   * The Delta-V Gauge: A vertical bar that fills up as the maneuver becomes more complex.
+   * Fuel Logic: The app calculates mfinal​ (Final Mass) after the burn using the Tsiolkovsky Equation. If mfinal​ implies a negative fuel value, the "Confirm" button is disabled and replaced with a "Fuel Warning" icon.
+   * Trajectory Metadata: Displays "Closest Approach Distance" and "Relative Velocity at Intercept" (e.g., 7.8km/s).
+PAGE 6: Star-Lock Terminal (AI Navigation)
+Purpose: To simulate a celestial navigation lock using computer vision.
+* Detailed Functionality:
+   * The Viewfinder: A circular overlay on the screen that looks like a high-tech telescope lens.
+   * Panning Controls: The user can "drag" the starfield in 360 degrees.
+   * AI Scanning Overlay: As the user pans, small green boxes flicker over stars as the TensorFlow.js model attempts to recognize patterns.
+   * Constellation Lock: When a pattern is matched, a "Connection Line" is drawn between the stars in the constellation, and the ship’s Roll, Pitch, and Yaw are calculated.
+   * The Calibration Sound: A high-pitched "ping" confirms that the orientation quaternions have been saved to the session.
+PAGE 7: Recovery Ledger (The Success Screen)
+Purpose: To finalize the mission and provide a sense of progression.
+* Detailed Functionality:
+   * The Manifest: A summarized receipt of the mission. It lists "Net Resources Added" and "Carbon Footprint Reduced" (by avoiding a burn-up).
+   * Personal Stats: A running total of the user's "Lifetime Salvage Mass."
+   * Global Impact: A small map of the world showing where the "Virtual Credits" from this salvage would be distributed to (e.g., Sustainable Space Fund).
+   * Reset Logic: Clicking "Return to Hub" clears the Target Lock and resets the 3D camera to its default "Global View."
