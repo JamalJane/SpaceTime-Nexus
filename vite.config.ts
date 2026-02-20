@@ -1,19 +1,12 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  root: '.',
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    rollupOptions: {
-      input: './index.html',
-    },
+  worker: {
+    format: 'es',
   },
-  resolve: {
-    alias: {
-      '@': new URL('./', import.meta.url).pathname.replace(/\/$/, ''),
-    },
+  optimizeDeps: {
+    exclude: ['satellite.js'],
   },
-});
+})

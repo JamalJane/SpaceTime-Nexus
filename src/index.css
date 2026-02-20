@@ -1,0 +1,185 @@
+/* =========================================================
+   NEXUS — Global Stylesheet
+   Design System: Dark Space / Glassmorphism / HUD
+   ========================================================= */
+
+/* --- Fonts & Reset --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Colors */
+  --void:          #050505;
+  --surface:       #0D0D0D;
+  --signal:        #F2F2F2;
+  --gold:          #FFD700;
+  --green:         #00FF41;
+  --red:           #FF3131;
+  --gray:          #404040;
+  --gray-dim:      #1a1a1a;
+
+  /* Typography */
+  --font-ui:   'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Spacing */
+  --hud-margin: 24px;
+  --sidebar-w:  380px;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--void);
+  color: var(--signal);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--gray); border-radius: 2px; }
+
+/* --- Typography --- */
+h1, h2, h3, h4 {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* --- HUD Layout --- */
+.hud-frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  padding: var(--hud-margin);
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-w);
+  grid-template-rows: auto 1fr auto;
+}
+
+/* --- Glassmorphism Card --- */
+.glass {
+  background: rgba(13, 13, 13, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--gray);
+  border-radius: 4px;
+}
+
+/* --- Buttons --- */
+.btn {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 24px;
+  border: 1px solid var(--signal);
+  background: transparent;
+  color: var(--signal);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  border-radius: 2px;
+}
+
+.btn:hover {
+  background: var(--signal);
+  color: var(--void);
+}
+
+.btn.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px var(--gold);
+  color: var(--gold);
+}
+
+.btn:disabled {
+  border-color: var(--red);
+  color: var(--red);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* --- Tag / Badge --- */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+}
+
+.tag.gold   { color: var(--gold); }
+.tag.green  { color: var(--green); }
+.tag.red    { color: var(--red); }
+.tag.gray   { color: var(--gray); border-color: var(--gray); }
+
+/* --- Divider --- */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--gray);
+  opacity: 0.4;
+}
+
+/* --- Scanline overlay (subtle CRT effect) --- */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* --- Gold glow pulse animation --- */
+@keyframes gold-pulse {
+  0%, 100% { box-shadow: 0 0 8px var(--gold); }
+  50%       { box-shadow: 0 0 24px var(--gold), 0 0 48px rgba(255,215,0,0.2); }
+}
+
+@keyframes green-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+@keyframes hud-shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-1px); }
+  75%       { transform: translateX(1px); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.anim-fade-in   { animation: fade-in 0.5s ease forwards; }
+.anim-shake     { animation: hud-shake 0.15s ease; }
+.anim-blink     { animation: green-blink 1.2s ease-in-out infinite; }
