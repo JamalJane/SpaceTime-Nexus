@@ -1,6 +1,5 @@
-import { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { gsap } from 'gsap'
+import { useEffect } from 'react'
+import { motion, useAnimation } from 'framer-motion'
 import { useTargetStore, useMissionStore, useNavStore, useMarketStore } from '../store'
 import { calcNRV } from '../lib/orbital'
 import { audio } from '../lib/audio'
@@ -10,7 +9,7 @@ export default function RecoveryLedgerPage() {
     const { deltaV, orientationQuaternion, reset } = useMissionStore()
     const { setPage } = useNavStore()
     const { prices } = useMarketStore()
-    const titleRef = useRef<HTMLDivElement>(null)
+    const controls = useAnimation()
 
     const nrv = selectedTarget
         ? calcNRV({
@@ -26,11 +25,12 @@ export default function RecoveryLedgerPage() {
     const lifetimeMass = selectedTarget ? selectedTarget.dryMassKg.toLocaleString() : '0'
 
     useEffect(() => {
-        if (!titleRef.current) return
-        gsap.from(titleRef.current, {
-            y: 30, opacity: 0, duration: 0.8, ease: 'power3.out',
+        controls.start({
+            y: 0,
+            opacity: 1,
+            transition: { duration: 0.8, ease: 'easeOut' }
         })
-    }, [])
+    }, [controls])
 
     const handleReset = () => {
         audio.click()
@@ -58,7 +58,11 @@ export default function RecoveryLedgerPage() {
                 display: 'flex', flexDirection: 'column', gap: '16px',
             }}>
                 {/* Title */}
-                <div ref={titleRef} style={{ textAlign: 'center', marginBottom: '8px' }}>
+                <motion.div
+                    animate={controls}
+                    initial={{ y: 30, opacity: 0 }}
+                    style={{ textAlign: 'center', marginBottom: '8px' }}
+                >
                     <div style={{
                         fontFamily: 'var(--font-mono)', fontSize: '0.6rem',
                         color: 'var(--gold)', letterSpacing: '4px', marginBottom: '6px',
@@ -69,7 +73,7 @@ export default function RecoveryLedgerPage() {
                         MANIFEST SECURED
                     </h1>
                     <div style={{ width: '80px', height: '2px', background: 'var(--gold)', margin: '12px auto 0' }} />
-                </div>
+                </motion.div>
 
                 {/* Mission Summary */}
                 <div className="glass" style={{ padding: '20px 24px' }}>

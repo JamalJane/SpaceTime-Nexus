@@ -11,16 +11,12 @@
   "dependencies": {
     "@react-three/drei": "^9.115.0",
     "@react-three/fiber": "^8.17.10",
-    "@tensorflow/tfjs": "^4.20.0",
     "framer-motion": "^11.0.0",
-    "gsap": "^3.12.5",
     "lucide-react": "^0.460.0",
-    "mathjs": "^13.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "satellite.js": "^5.0.0",
     "three": "^0.170.0",
-    "three-mesh-bvh": "^0.8.0",
     "zustand": "^5.0.0"
   },
   "devDependencies": {
