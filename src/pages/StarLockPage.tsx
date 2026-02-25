@@ -1,256 +1,210 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useMissionStore, useNavStore } from '../store'
-import { audio } from '../lib/audio'
+import { motion } from 'framer-motion'
+import { Star, Navigation, Globe2, Compass, Info, ArrowRight } from 'lucide-react'
+import { useNavStore } from '../store'
 
-// Star catalog (simplified — real positions from Hipparcos)
-const STARS = [
-    { name: 'Polaris', x: 50, y: 25, mag: 2.0, constellation: 'Ursa Minor' },
-    { name: 'Vega', x: 70, y: 40, mag: 0.0, constellation: 'Lyra' },
-    { name: 'Deneb', x: 80, y: 30, mag: 1.3, constellation: 'Cygnus' },
-    { name: 'Altair', x: 75, y: 60, mag: 0.8, constellation: 'Aquila' },
-    { name: 'Arcturus', x: 35, y: 55, mag: -0.1, 'constellation': 'Boötes' },
-    { name: 'Sirius', x: 20, y: 65, mag: -1.5, constellation: 'Canis Major' },
-    { name: 'Rigel', x: 25, y: 70, mag: 0.1, constellation: 'Orion' },
-    { name: 'Betelgeuse', x: 30, y: 62, mag: 0.4, constellation: 'Orion' },
-    { name: 'Capella', x: 15, y: 45, mag: 0.1, constellation: 'Auriga' },
-    { name: 'Procyon', x: 22, y: 55, mag: 0.4, constellation: 'Canis Minor' },
-    { name: 'Achernar', x: 60, y: 80, mag: 0.5, constellation: 'Eridanus' },
-    { name: 'Hadar', x: 45, y: 85, mag: 0.6, constellation: 'Centaurus' },
-    { name: 'Acrux', x: 40, y: 78, mag: 0.8, constellation: 'Crux' },
-    { name: 'Aldebaran', x: 28, y: 48, mag: 0.9, constellation: 'Taurus' },
-    { name: 'Spica', x: 48, y: 65, mag: 1.0, constellation: 'Virgo' },
-    { name: 'Antares', x: 55, y: 72, mag: 1.1, constellation: 'Scorpius' },
-    { name: 'Fomalhaut', x: 65, y: 82, mag: 1.2, constellation: 'Piscis' },
-    { name: 'Pollux', x: 18, y: 38, mag: 1.1, constellation: 'Gemini' },
-    { name: 'Castor', x: 16, y: 32, mag: 1.6, constellation: 'Gemini' },
-    { name: 'Regulus', x: 38, y: 58, mag: 1.4, constellation: 'Leo' },
+const stagger = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+}
+const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+}
+
+const CONSTELLATIONS = [
+    {
+        name: 'Orion',
+        stars: 7,
+        season: 'Winter',
+        desc: 'The Hunter — one of the most recognizable constellations. Betelgeuse (red supergiant) and Rigel (blue supergiant) mark opposite corners. The three belt stars point toward Sirius, the brightest star in the sky.',
+        howToFind: 'Look south in winter evenings for three bright stars in a row — that\'s Orion\'s Belt.',
+    },
+    {
+        name: 'Ursa Major',
+        stars: 7,
+        season: 'Year-round (Northern)',
+        desc: 'Contains the Big Dipper asterism. The two "pointer" stars (Dubhe and Merak) at the end of the Big Dipper\'s bowl always point toward Polaris — this is how navigators have found north for thousands of years.',
+        howToFind: 'Find the Big Dipper high in the north. Draw a line through the two end stars of the bowl — it points to Polaris.',
+    },
+    {
+        name: 'Crux (Southern Cross)',
+        stars: 4,
+        season: 'Southern Hemisphere',
+        desc: 'The smallest constellation but critical for southern navigation. The long axis of the cross points toward the south celestial pole. Sailors have used it since the age of exploration.',
+        howToFind: 'Visible below ~25°N latitude. Look for four bright stars forming a compact cross near the Milky Way.',
+    },
+    {
+        name: 'Cassiopeia',
+        stars: 5,
+        season: 'Year-round (Northern)',
+        desc: 'The distinctive W-shape (or M, depending on the season) never sets below the horizon in northern latitudes. It sits directly opposite the Big Dipper relative to Polaris — if one is low, the other is high.',
+        howToFind: 'Look for a bright W or M shape on the opposite side of Polaris from the Big Dipper.',
+    },
 ]
 
-type Phase = 'SCANNING' | 'MATCH_FOUND' | 'LOCKED'
+const NAV_TECH = [
+    {
+        title: 'Star Trackers',
+        icon: <Star size={20} />,
+        what: 'A camera on a spacecraft that photographs stars and matches patterns against a catalog.',
+        why: 'GPS doesn\'t work far from Earth. Star trackers let spacecraft know their orientation (attitude) to within 0.0001° — accurate enough to point a camera at a planet millions of miles away.',
+        used: 'Every interplanetary mission, ISS, Hubble, James Webb Space Telescope.',
+    },
+    {
+        title: 'Inertial Navigation',
+        icon: <Navigation size={20} />,
+        what: 'Gyroscopes and accelerometers that track every rotation and acceleration since launch.',
+        why: 'Provides continuous position data without external signals. Drifts over time, so it\'s paired with star trackers for periodic "fixes."',
+        used: 'Nuclear submarines, ICBMs, Apollo lunar missions, Mars rovers.',
+    },
+    {
+        title: 'Celestial Sphere',
+        icon: <Globe2 size={20} />,
+        what: 'An imaginary sphere surrounding Earth onto which all stars appear projected.',
+        why: 'Gives us a coordinate system (Right Ascension + Declination) that works the same no matter where you are in the solar system. Think of it as GPS coordinates for the sky.',
+        used: 'Every observatory, planetarium, and spacecraft navigation system.',
+    },
+]
+
+const IMPACT_STATS = [
+    { value: '27,000+', label: 'Tracked debris objects', color: 'var(--coral)' },
+    { value: '8,500', label: 'Metric tons in orbit', color: 'var(--gold)' },
+    { value: '36,500', label: 'Objects > 10cm', color: 'var(--red)' },
+    { value: '130M+', label: 'Fragments > 1mm', color: 'var(--purple)' },
+    { value: '$2.1B', label: 'Annual tracking cost', color: 'var(--green)' },
+    { value: '2040', label: 'Projected Kessler threshold', color: 'var(--red)' },
+]
 
 export default function StarLockPage() {
-    const { setQuaternion, setStatus } = useMissionStore()
     const { setPage } = useNavStore()
 
-    const [pan, setPan] = useState({ x: 0, y: 0 })
-    const [dragging, setDragging] = useState(false)
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-    const [phase, setPhase] = useState<Phase>('SCANNING')
-    const [matched, setMatched] = useState<string | null>(null)
-    const [scanIdx, setScanIdx] = useState(0)
-    const intervalRef = useRef<ReturnType<typeof setInterval>>()
-
-    // Auto-scan sequence
-    useEffect(() => {
-        intervalRef.current = setInterval(() => {
-            setScanIdx((i) => (i + 1) % STARS.length)
-        }, 800)
-        return () => clearInterval(intervalRef.current)
-    }, [])
-
-    const handleMouseDown = useCallback((e: React.MouseEvent) => {
-        setDragging(true)
-        setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y })
-    }, [pan])
-
-    const handleMouseMove = useCallback((e: React.MouseEvent) => {
-        if (!dragging) return
-        setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })
-    }, [dragging, dragStart])
-
-    const handleMouseUp = useCallback(() => {
-        setDragging(false)
-        if (phase === 'SCANNING') {
-            setPhase('MATCH_FOUND')
-            setMatched('Orion')
-            setTimeout(() => {
-                setPhase('LOCKED')
-                clearInterval(intervalRef.current)
-                // Generate orientation quaternion from star positions
-                const theta = Math.atan2(pan.y, pan.x)
-                setQuaternion([
-                    parseFloat(Math.cos(theta / 2).toFixed(4)),
-                    parseFloat((Math.sin(theta / 2) * 0.0).toFixed(4)),
-                    parseFloat((Math.sin(theta / 2) * 1.0).toFixed(4)),
-                    parseFloat((Math.sin(theta / 2) * 0.0).toFixed(4)),
-                ])
-            }, 1800)
-        }
-    }, [phase, pan, setQuaternion])
-
-    const visibleStars = STARS.map(s => ({
-        ...s,
-        sx: s.x + pan.x * 0.1,
-        sy: s.y + pan.y * 0.1,
-    }))
-
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            style={{
-                position: 'fixed', inset: 0, zIndex: 25,
-                background: 'radial-gradient(ellipse at center, #080810 0%, #020205 100%)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: dragging ? 'grabbing' : 'grab',
-                pointerEvents: 'all',
-            }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-        >
-            {/* Starfield */}
-            <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-                {/* Noise filter */}
-                <defs>
-                    <filter id="noise">
-                        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-                        <feColorMatrix type="saturate" values="0" />
-                        <feBlend in="SourceGraphic" mode="overlay" result="blend" />
-                        <feComposite in="blend" in2="SourceGraphic" operator="in" />
-                    </filter>
-                    <radialGradient id="grain" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="transparent" />
-                        <stop offset="100%" stopColor="rgba(0,0,0,0.4)" />
-                    </radialGradient>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#grain)" />
-
-                {/* Stars */}
-                {visibleStars.map((star, i) => {
-                    const isScanning = scanIdx === i && phase === 'SCANNING'
-                    const isMatchedStar = phase !== 'SCANNING' && star.constellation === matched
-                    const screenX = (star.sx / 100) * window.innerWidth
-                    const screenY = (star.sy / 100) * window.innerHeight
-                    const size = Math.max(1, 3 - star.mag * 0.8)
-
-                    return (
-                        <g key={star.name}>
-                            {isScanning && (
-                                <rect
-                                    x={screenX - 12} y={screenY - 12}
-                                    width={24} height={24}
-                                    fill="none" stroke="var(--green)" strokeWidth={1}
-                                    opacity={0.7}
-                                />
-                            )}
-                            {isMatchedStar && (
-                                <line
-                                    x1={screenX} y1={screenY}
-                                    x2={visibleStars[(i + 1) % visibleStars.length].sx / 100 * window.innerWidth}
-                                    y2={visibleStars[(i + 1) % visibleStars.length].sy / 100 * window.innerHeight}
-                                    stroke="var(--green)" strokeWidth={0.5} opacity={0.5} strokeDasharray="4 4"
-                                />
-                            )}
-                            <circle cx={screenX} cy={screenY} r={size} fill="white" opacity={0.85} />
-                            {isScanning && (
-                                <text x={screenX + 8} y={screenY - 8}
-                                    fontFamily="var(--font-mono)" fontSize={9} fill="var(--green)" opacity={0.8}>
-                                    SCANNING...
-                                </text>
-                            )}
-                            {isMatchedStar && (
-                                <text x={screenX + 8} y={screenY - 8}
-                                    fontFamily="var(--font-mono)" fontSize={9} fill="var(--green)">
-                                    {star.name}
-                                </text>
-                            )}
-                        </g>
-                    )
-                })}
-            </svg>
-
-            {/* Viewfinder Circle */}
-            <div style={{ position: 'relative', width: '300px', height: '300px', pointerEvents: 'none' }}>
-                <svg viewBox="0 0 300 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-                    {/* Crosshair */}
-                    <line x1="150" y1="0" x2="150" y2="120" stroke="var(--green)" strokeWidth={1} opacity={0.5} />
-                    <line x1="150" y1="180" x2="150" y2="300" stroke="var(--green)" strokeWidth={1} opacity={0.5} />
-                    <line x1="0" y1="150" x2="120" y2="150" stroke="var(--green)" strokeWidth={1} opacity={0.5} />
-                    <line x1="180" y1="150" x2="300" y2="150" stroke="var(--green)" strokeWidth={1} opacity={0.5} />
-
-                    {/* Main circle */}
-                    <circle cx="150" cy="150" r="148" fill="none" stroke="var(--green)" strokeWidth={1} opacity={0.4} />
-                    <circle cx="150" cy="150" r="120" fill="none" stroke="var(--green)" strokeWidth={0.5} opacity={0.2} strokeDasharray="4 8" />
-
-                    {/* Corner brackets */}
-                    {[[8, 8], [292, 8], [8, 292], [292, 292]].map(([cx, cy], i) => {
-                        const dx = cx === 8 ? 1 : -1
-                        const dy = cy === 8 ? 1 : -1
-                        return (
-                            <g key={i} className={phase === 'SCANNING' ? 'anim-blink' : ''}>
-                                <line x1={cx} y1={cy} x2={cx + dx * 20} y2={cy} stroke="var(--green)" strokeWidth={1.5} />
-                                <line x1={cx} y1={cy} x2={cx} y2={cy + dy * 20} stroke="var(--green)" strokeWidth={1.5} />
-                            </g>
-                        )
-                    })}
-
-                    {/* Lock ring */}
-                    {phase === 'LOCKED' && (
-                        <motion.circle
-                            cx="150" cy="150" r="148"
-                            fill="none" stroke="var(--green)" strokeWidth={2}
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 1 }}
-                            transition={{ duration: 1.2 }}
-                        />
-                    )}
-                </svg>
-
-                {/* Phase label */}
-                <div style={{
-                    position: 'absolute', bottom: -40, left: '50%', transform: 'translateX(-50%)',
-                    fontFamily: 'var(--font-mono)', fontSize: '0.65rem', letterSpacing: '3px', whiteSpace: 'nowrap',
-                    color: phase === 'LOCKED' ? 'var(--green)' : 'var(--gray)',
-                }}>
-                    {phase === 'SCANNING' && '● SCANNING STARFIELD — DRAG TO PAN'}
-                    {phase === 'MATCH_FOUND' && `◆ MATCH FOUND — ${matched?.toUpperCase()} CONSTELLATION`}
-                    {phase === 'LOCKED' && '✓ AZIMUTH LOCKED — QUATERNIONS SAVED'}
-                </div>
-            </div>
-
-            {/* Phase status overlay */}
-            <AnimatePresence>
-                {phase === 'LOCKED' && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{
-                            position: 'absolute', bottom: '100px', left: '50%', transform: 'translateX(-50%)',
-                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
-                        }}
-                    >
-                        <button className="btn active" onClick={() => {
-                            audio.click()
-                            setStatus('LOCKED')
-                            setPage('RECOVERY_LEDGER')
-                        }} onMouseEnter={() => audio.hover()}>
-                            EXECUTE BURN — RECOVERY LEDGER ▶
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* ESC */}
-            <button
-                onClick={() => {
-                    audio.click()
-                    setPage('GRAVEYARD')
-                }}
-                onMouseEnter={() => audio.hover()}
-                style={{
-                    position: 'absolute', top: '32px', right: '32px',
-                    fontFamily: 'var(--font-mono)', fontSize: '0.65rem', letterSpacing: '2px',
-                    color: 'var(--gray)', background: 'none', border: '1px solid var(--gray)',
-                    padding: '6px 14px', borderRadius: '2px', cursor: 'pointer',
-                }}
+        <div className="page-section" style={{ paddingTop: '100px' }}>
+            <motion.div
+                className="section-inner"
+                variants={stagger}
+                initial="hidden"
+                animate="show"
+                style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
             >
-                ← ABORT
-            </button>
-        </motion.div>
+                {/* Header */}
+                <motion.div variants={fadeUp} style={{ textAlign: 'center' }}>
+                    <div className="section-label" style={{ textAlign: 'center' }}>STAR-LOCK TERMINAL</div>
+                    <h2>Navigate by the <span className="gradient-text">Stars</span></h2>
+                    <p style={{ maxWidth: '650px', margin: '12px auto 0', fontSize: '0.95rem' }}>
+                        Before GPS, before radio, there were the stars. Learn how ancient navigators and modern
+                        spacecraft both use the same sky to find their way — and why protecting our orbits matters.
+                    </p>
+                </motion.div>
+
+                {/* How it works */}
+                <motion.div variants={fadeUp} className="glass" style={{ padding: '24px 28px' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                        <Info size={18} color="var(--coral)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                        <div>
+                            <h3 style={{ fontSize: '1rem', marginBottom: '8px' }}>How Do Spacecraft Navigate?</h3>
+                            <p style={{ fontSize: '0.85rem', lineHeight: 1.8, margin: 0 }}>
+                                Spacecraft can't use GPS beyond Earth orbit. Instead they use <strong>celestial navigation</strong> — the same
+                                principle sailors used for centuries. A camera (star tracker) photographs the sky, an AI identifies star patterns,
+                                and the computer calculates the spacecraft's exact orientation. Combined with inertial sensors that track every
+                                twist and turn, this gives spacecraft pinpoint accuracy across billions of miles.
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* Navigation Technologies */}
+                <motion.div variants={fadeUp}>
+                    <div className="section-label">NAVIGATION TECHNOLOGIES</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+                        {NAV_TECH.map(tech => (
+                            <div key={tech.title} className="glass" style={{ padding: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                                    <div style={{ color: 'var(--coral)' }}>{tech.icon}</div>
+                                    <h3 style={{ fontSize: '1rem' }}>{tech.title}</h3>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                                        <strong style={{ color: 'var(--signal)' }}>What:</strong> {tech.what}
+                                    </p>
+                                    <p style={{ fontSize: '0.82rem', margin: 0 }}>
+                                        <strong style={{ color: 'var(--signal)' }}>Why it matters:</strong> {tech.why}
+                                    </p>
+                                    <p style={{ fontSize: '0.78rem', margin: 0, color: 'var(--gray)' }}>
+                                        <strong>Used in:</strong> {tech.used}
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Constellation Guide */}
+                <motion.div variants={fadeUp}>
+                    <div className="section-label">CONSTELLATION GUIDE</div>
+                    <p style={{ fontSize: '0.82rem', marginBottom: '12px', opacity: 0.7 }}>
+                        These are the key constellations used for celestial navigation. Learn to identify them and you can find your bearings anywhere on Earth.
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                        {CONSTELLATIONS.map(con => (
+                            <div key={con.name} className="glass info-card">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <h3 style={{ fontSize: '1.05rem' }}>{con.name}</h3>
+                                    <div style={{ display: 'flex', gap: '2px' }}>
+                                        {[...Array(con.stars)].map((_, i) => (
+                                            <Star key={i} size={9} fill="var(--gold)" color="var(--gold)" />
+                                        ))}
+                                    </div>
+                                </div>
+                                <span className="tag gold" style={{ alignSelf: 'flex-start' }}>{con.season}</span>
+                                <p style={{ fontSize: '0.8rem', margin: 0 }}>{con.desc}</p>
+                                <div style={{
+                                    fontSize: '0.78rem', padding: '8px 12px', marginTop: '4px',
+                                    background: 'rgba(232,132,92,0.06)', borderRadius: '8px',
+                                    border: '1px solid rgba(232,132,92,0.15)',
+                                }}>
+                                    <strong style={{ color: 'var(--coral)', fontSize: '0.7rem' }}>HOW TO FIND:</strong>{' '}
+                                    <span style={{ opacity: 0.8 }}>{con.howToFind}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Global Impact Ledger */}
+                <motion.div variants={fadeUp} className="glass-warm" style={{ padding: '32px' }}>
+                    <div className="section-label">WHY THIS MATTERS — THE DEBRIS CRISIS IN NUMBERS</div>
+                    <p style={{ fontSize: '0.88rem', marginBottom: '24px', maxWidth: '600px' }}>
+                        Every collision creates more fragments. More fragments cause more collisions.
+                        If we don't act, this <strong>Kessler Syndrome</strong> could make orbital space unusable within our lifetimes.
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                        {IMPACT_STATS.map(stat => (
+                            <div key={stat.label} style={{ textAlign: 'center', padding: '12px' }}>
+                                <div style={{
+                                    fontFamily: 'var(--font-mono)', fontSize: '1.3rem', fontWeight: 700,
+                                    color: stat.color,
+                                }}>
+                                    {stat.value}
+                                </div>
+                                <div className="stat-label" style={{ marginTop: '4px' }}>{stat.label}</div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button className="btn btn-coral" onClick={() => setPage('GRAVEYARD')} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            See the Graveyard <ArrowRight size={14} />
+                        </button>
+                        <button className="btn" onClick={() => setPage('INTERCEPT')}>
+                            Plan an Intercept
+                        </button>
+                    </div>
+                </motion.div>
+
+                <div style={{ height: '80px' }} />
+            </motion.div>
+        </div>
     )
 }
