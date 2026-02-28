@@ -9,4 +9,15 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['satellite.js'],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'three-core': ['three'],
+          'three-addons': ['@react-three/fiber', '@react-three/drei'],
+          'vendor': ['react', 'react-dom'],
+        },
+      },
+    },
+  },
 })

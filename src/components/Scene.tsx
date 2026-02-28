@@ -1,9 +1,10 @@
-import { Suspense, useRef, useMemo } from 'react'
+import { Suspense, useRef, useMemo, lazy } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Stars, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { generateDebrisCloud } from '../lib/sampleData'
-import InteractiveGlobe from './InteractiveGlobe'
+
+const InteractiveGlobe = lazy(() => import('./InteractiveGlobe'))
 
 // ─── Debris Point Cloud ─────────────────────────────────────
 function DebrisCloud() {
