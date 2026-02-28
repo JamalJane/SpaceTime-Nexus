@@ -96,13 +96,13 @@ export default function InterceptPage() {
                         Drag the sliders to set your starting orbit and target orbit. The calculator computes the exact Delta-V needed for a Hohmann transfer.
                     </p>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                    <div className="responsive-grid-2">
                         <SliderInput label="Starting Altitude" value={currentAlt} min={160} max={2000} step={10} onChange={setCurrentAlt} suffix=" km" />
                         <SliderInput label="Target Altitude" value={targetAlt} min={160} max={36000} step={50} onChange={setTargetAlt} suffix=" km" />
                     </div>
 
                     {/* Results */}
-                    <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', textAlign: 'center' }}>
+                    <div className="responsive-grid-3" style={{ marginTop: '24px', textAlign: 'center' }}>
                         <div className="glass" style={{ padding: '16px', borderRadius: '12px' }}>
                             <div className="stat-label">DELTA-V REQUIRED</div>
                             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.6rem', fontWeight: 700, color: 'var(--coral)', marginTop: '4px' }}>
@@ -156,15 +156,15 @@ export default function InterceptPage() {
 
                     {/* Fuel math breakdown */}
                     <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(64,64,64,0.3)' }}>
+                        <div className="math-row">
                             <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--gray)' }}>Wet mass (craft + fuel)</span>
                             <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--signal)' }}>{mInitial.toLocaleString()} kg</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(64,64,64,0.3)' }}>
+                        <div className="math-row">
                             <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--gray)' }}>Max Δv your fuel provides</span>
                             <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--green)' }}>{maxDeltaV.toFixed(1)} m/s</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(64,64,64,0.3)' }}>
+                        <div className="math-row">
                             <span className="mono" style={{ fontSize: '0.7rem', color: 'var(--gray)' }}>Δv needed for this transfer</span>
                             <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--coral)' }}>{deltaV.toFixed(1)} m/s</span>
                         </div>

@@ -36,15 +36,15 @@ export default function CardNav() {
 
     return (
         <>
-            {/* Mobile toggle */}
+            {/* Mobile toggle (FAB) — shown on ≤480px via CSS */}
             <button
                 onClick={() => setMobileOpen(!mobileOpen)}
+                className="mobile-nav-toggle"
                 style={{
                     position: 'fixed',
                     bottom: 'var(--hud-margin)',
                     right: 'var(--hud-margin)',
                     zIndex: 35,
-                    display: 'none',
                     width: '48px',
                     height: '48px',
                     borderRadius: '50%',
@@ -55,28 +55,81 @@ export default function CardNav() {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}
-                className="mobile-nav-toggle"
             >
                 {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
 
-            <div
-                style={{
-                    position: 'fixed',
-                    bottom: 'var(--hud-margin)',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 30,
-                    display: 'flex',
-                    gap: '4px',
-                    padding: '8px 12px',
-                    background: 'rgba(13,13,13,0.88)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(64,64,64,0.5)',
-                    borderRadius: '40px',
-                    pointerEvents: 'all',
-                }}
-            >
+            {/* Mobile slide-up drawer — shown on ≤480px when open */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 100 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 100 }}
+                        transition={{ duration: 0.25, ease: 'easeOut' }}
+                        className={`mobile-nav-drawer ${mobileOpen ? 'open' : ''}`}
+                        style={{
+                            position: 'fixed',
+                            bottom: '68px',
+                            left: 'var(--hud-margin)',
+                            right: 'var(--hud-margin)',
+                            zIndex: 34,
+                            flexDirection: 'column',
+                            gap: '4px',
+                            padding: '12px',
+                            background: 'rgba(13,13,13,0.95)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(64,64,64,0.5)',
+                            borderRadius: '16px',
+                            pointerEvents: 'all',
+                        }}
+                    >
+                        {NAV_ITEMS.map((item) => {
+                            const isActive = page === item.id
+
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleClick(item.id)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '12px 16px',
+                                        border: isActive ? '1px solid var(--gold)' : '1px solid transparent',
+                                        borderRadius: '12px',
+                                        background: isActive ? 'rgba(255,215,0,0.08)' : 'transparent',
+                                        color: isActive ? 'var(--gold)' : 'var(--signal)',
+                                        fontFamily: 'var(--font-ui)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 600,
+                                        letterSpacing: '1.2px',
+                                        textTransform: 'uppercase',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s',
+                                        width: '100%',
+                                    }}
+                                >
+                                    {item.icon}
+                                    <span>{item.label}</span>
+                                    <span style={{
+                                        marginLeft: 'auto',
+                                        fontSize: '0.55rem',
+                                        color: 'var(--gray)',
+                                        fontWeight: 400,
+                                        letterSpacing: '0.5px',
+                                    }}>
+                                        {item.description}
+                                    </span>
+                                </button>
+                            )
+                        })}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Desktop/Tablet nav bar — uses .card-nav-bar CSS class */}
+            <div className="card-nav-bar">
                 {NAV_ITEMS.map((item) => {
                     const isActive = page === item.id
                     const isHovered = hovered === item.id
@@ -165,7 +218,7 @@ export default function CardNav() {
                                     }}
                                 >
                                     {item.icon}
-                                    {item.label}
+                                    <span className="card-nav-label">{item.label}</span>
                                 </motion.button>
                             </div>
                         </div>

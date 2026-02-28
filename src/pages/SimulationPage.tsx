@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Target, Rocket, Fuel, DollarSign, AlertTriangle, CheckCircle, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react'
+import { Target, Rocket, Fuel, DollarSign, AlertTriangle, CheckCircle, ArrowRight, RotateCcw, ChevronDown, Compass } from 'lucide-react'
 import { SAMPLE_SATELLITES } from '../lib/sampleData'
 import { estimateDeltaV, tsiolkovskyFuelCheck, calcNRV } from '../lib/orbital'
 import { audio } from '../lib/audio'
+import { useNavStore } from '../store'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -22,6 +23,7 @@ const METAL_PRICES = { aluminum: 2.65, titanium: 11.50, gold: 62000, copper: 9.8
 const EARTH_R = 6371
 
 export default function SimulationPage() {
+    const { setPage } = useNavStore()
     const [phase, setPhase] = useState<MissionPhase>('SELECT')
     const [targetIdx, setTargetIdx] = useState<number | null>(null)
     const [craftMass, setCraftMass] = useState(2000)
@@ -251,6 +253,36 @@ export default function SimulationPage() {
                         Select a target satellite, configure your spacecraft, and run a real-time
                         simulation of an orbital intercept and salvage mission.
                     </p>
+                </motion.div>
+
+                {/* Graveyard CTA */}
+                <motion.div
+                    variants={fadeUp}
+                    className="glass"
+                    style={{
+                        padding: '16px 24px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '16px',
+                        flexWrap: 'wrap',
+                        border: '1px solid rgba(232,132,92,0.25)',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Compass size={18} color="var(--coral)" />
+                        <p style={{ fontSize: '0.85rem', margin: 0, color: 'var(--signal)' }}>
+                            Want to try this with <strong style={{ color: 'var(--coral)' }}>real satellites</strong>?
+                            Explore tracked debris in the Graveyard.
+                        </p>
+                    </div>
+                    <button
+                        className="btn btn-coral"
+                        onClick={() => { setPage('GRAVEYARD'); audio.click() }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', fontSize: '0.7rem', padding: '8px 16px' }}
+                    >
+                        Visit Graveyard <ArrowRight size={12} />
+                    </button>
                 </motion.div>
 
                 {/* Progress bar */}

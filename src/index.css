@@ -393,8 +393,69 @@ p {
   background-clip: text;
 }
 
-/* --- Responsive --- */
+/* --- Responsive Utility Classes --- */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.responsive-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* CardNav classes */
+.card-nav-bar {
+  position: fixed;
+  bottom: var(--hud-margin);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(13, 13, 13, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(64, 64, 64, 0.5);
+  border-radius: 40px;
+  pointer-events: all;
+}
+
+.card-nav-label {
+  display: inline;
+}
+
+.mobile-nav-toggle {
+  display: none !important;
+}
+
+.mobile-nav-drawer {
+  display: none;
+}
+
+/* Math breakdown responsive */
+.math-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(64, 64, 64, 0.3);
+  gap: 8px;
+}
+
+.altitude-band-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* --- Responsive: Tablet (768px) --- */
 @media (max-width: 768px) {
+  :root {
+    --hud-margin: 16px;
+  }
+
   .card-grid {
     grid-template-columns: 1fr;
   }
@@ -406,5 +467,114 @@ p {
 
   .page-section {
     padding: 60px 16px;
+  }
+
+  .responsive-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .responsive-grid-3 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* CardNav: icons only */
+  .card-nav-label {
+    display: none;
+  }
+
+  .card-nav-bar {
+    gap: 2px;
+    padding: 6px 10px;
+  }
+
+  .glass {
+    border-radius: 12px;
+  }
+
+  .glass-warm {
+    border-radius: 12px;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .altitude-band-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .math-row {
+    flex-wrap: wrap;
+  }
+
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+  }
+
+  h2 {
+    font-size: clamp(1.3rem, 3vw, 2rem);
+  }
+}
+
+/* --- Responsive: Mobile (480px) --- */
+@media (max-width: 480px) {
+  :root {
+    --hud-margin: 12px;
+  }
+
+  .page-section {
+    padding: 50px 12px;
+  }
+
+  /* CardNav: hamburger mode */
+  .card-nav-bar {
+    display: none !important;
+  }
+
+  .mobile-nav-toggle {
+    display: flex !important;
+  }
+
+  .mobile-nav-drawer.open {
+    display: flex;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .stat-item {
+    padding: 12px 16px;
+    min-width: 100px;
+  }
+
+  .info-card {
+    padding: 20px;
+  }
+
+  .btn {
+    font-size: 0.72rem;
+    padding: 10px 20px;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 6vw, 2.4rem);
+  }
+
+  h2 {
+    font-size: clamp(1.1rem, 4vw, 1.6rem);
+  }
+
+  h3 {
+    font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  }
+
+  .section-label {
+    font-size: 0.58rem;
+    letter-spacing: 3px;
   }
 }

@@ -1,34 +1,9 @@
-import { useRef, useMemo } from 'react'
+import { Suspense, useRef, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Stars } from '@react-three/drei'
+import { Stars, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { generateDebrisCloud } from '../lib/sampleData'
-
-const EARTH_RADIUS_KM = 6371
-
-// ─── Earth ─────────────────────────────────────────────────
-function Earth() {
-    const meshRef = useRef<THREE.Mesh>(null)
-    useFrame((_, delta) => {
-        if (meshRef.current) meshRef.current.rotation.y += delta * 0.04
-    })
-    return (
-        <mesh ref={meshRef}>
-            <sphereGeometry args={[1, 64, 64]} />
-            <meshPhongMaterial color="#1E90FF" emissive="#001133" emissiveIntensity={0.2} specular="#222222" shininess={25} />
-            {/* Atmosphere glow */}
-            <mesh scale={[1.025, 1.025, 1.025]}>
-                <sphereGeometry args={[1, 32, 32]} />
-                <meshBasicMaterial color="#88CCFF" transparent opacity={0.12} side={THREE.BackSide} blending={THREE.AdditiveBlending} />
-            </mesh>
-            {/* Outer haze */}
-            <mesh scale={[1.08, 1.08, 1.08]}>
-                <sphereGeometry args={[1, 32, 32]} />
-                <meshBasicMaterial color="#4488CC" transparent opacity={0.05} side={THREE.BackSide} blending={THREE.AdditiveBlending} />
-            </mesh>
-        </mesh>
-    )
-}
+import InteractiveGlobe from './InteractiveGlobe'
 
 // ─── Debris Point Cloud ─────────────────────────────────────
 function DebrisCloud() {
@@ -104,18 +79,6 @@ function AntigravityParticles() {
     )
 }
 
-// ─── Camera Rig — Cinematic Orbit ────────────────────────────
-function CameraRig() {
-    useFrame(({ camera, clock }) => {
-        const t = clock.getElapsedTime() * 0.03
-        camera.position.x = Math.sin(t) * 5
-        camera.position.z = Math.cos(t) * 5
-        camera.position.y = Math.sin(t * 0.5) * 1.5
-        camera.lookAt(0, 0, 0)
-    })
-    return null
-}
-
 // ─── Scene Root ──────────────────────────────────────────────
 export default function Scene() {
     return (
@@ -123,19 +86,34 @@ export default function Scene() {
             <Canvas
                 dpr={[1, 1.5]}
                 frameloop="always"
-                gl={{ antialias: false, powerPreference: 'high-performance' }}
-                camera={{ position: [0, 0, 5], fov: 45, near: 0.01, far: 100 }}
+                gl={{ antialias: true, powerPreference: 'high-performance' }}
+                camera={{ position: [0, 0, 3.5], fov: 45, near: 0.01, far: 100 }}
             >
-                <ambientLight intensity={0.15} />
-                <directionalLight position={[5, 3, 5]} intensity={1.2} color="#ffffff" />
-                <pointLight position={[-5, -3, -5]} intensity={0.3} color="#2a6db5" />
+                <ambientLight intensity={0.2} />
+                <directionalLight position={[5, 3, 5]} intensity={1.5} color="#ffffff" />
+                <pointLight position={[-5, -3, -5]} intensity={0.4} color="#2a6db5" />
 
                 <Stars radius={80} depth={50} count={4000} factor={3} saturation={0} fade speed={0.5} />
 
-                <Earth />
+                {/* Suspense boundary for async texture loading */}
+                <Suspense fallback={null}>
+                    <InteractiveGlobe />
+                </Suspense>
+
                 <DebrisCloud />
                 <AntigravityParticles />
-                <CameraRig />
+
+                {/* Interactive drag/rotate/zoom — replaces CameraRig */}
+                <OrbitControls
+                    enablePan={false}
+                    enableZoom={true}
+                    minDistance={2}
+                    maxDistance={8}
+                    autoRotate
+                    autoRotateSpeed={0.3}
+                    enableDamping
+                    dampingFactor={0.05}
+                />
             </Canvas>
         </div>
     )

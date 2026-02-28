@@ -121,15 +121,15 @@ export default function SalvagePage() {
 
                     {/* Show the math */}
                     <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(64,64,64,0.3)' }}>
+                        <div className="math-row">
                             <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--gray)' }}>Metal value ({mass.toLocaleString()} kg of mixed metals)</span>
                             <span className="mono" style={{ fontSize: '0.8rem', color: 'var(--green)' }}>+${materialValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(64,64,64,0.3)' }}>
+                        <div className="math-row">
                             <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--gray)' }}>Fuel cost ({deltaV.toLocaleString()} m/s × $1,200)</span>
                             <span className="mono" style={{ fontSize: '0.8rem', color: 'var(--red)' }}>−${fuelCost.toLocaleString()}</span>
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(64,64,64,0.3)' }}>
+                        <div className="math-row">
                             <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--gray)' }}>Overhead ({flightDays} days × $4,500)</span>
                             <span className="mono" style={{ fontSize: '0.8rem', color: 'var(--red)' }}>−${overheadCost.toLocaleString()}</span>
                         </div>

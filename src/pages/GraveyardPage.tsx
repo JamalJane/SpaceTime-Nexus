@@ -62,7 +62,7 @@ export default function GraveyardPage() {
                     <div className="section-label">ORBITAL ALTITUDE BANDS</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
                         {ALTITUDE_BANDS.map(band => (
-                            <div key={band.name} className="glass" style={{ padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '20px' }}>
+                            <div key={band.name} className="glass altitude-band-card" style={{ padding: '20px 24px' }}>
                                 <div style={{
                                     width: '56px', height: '56px', borderRadius: '14px',
                                     background: `${band.color}15`,
