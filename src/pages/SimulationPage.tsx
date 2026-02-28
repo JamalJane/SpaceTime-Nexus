@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Target, Rocket, Fuel, DollarSign, AlertTriangle, CheckCircle, ArrowRight, RotateCcw, ChevronDown, Compass } from 'lucide-react'
 import { SAMPLE_SATELLITES } from '../lib/sampleData'
+import GlossaryLink from '../components/GlossaryLink'
 import { estimateDeltaV, tsiolkovskyFuelCheck, calcNRV } from '../lib/orbital'
 import { audio } from '../lib/audio'
 import { useNavStore } from '../store'
@@ -15,7 +16,7 @@ type MissionPhase = 'SELECT' | 'CONFIGURE' | 'RUNNING' | 'COMPLETE'
 
 interface MissionLog {
     time: string
-    text: string
+    text: string | React.ReactNode
     status: 'info' | 'warn' | 'ok' | 'error'
 }
 
@@ -71,7 +72,7 @@ export default function SimulationPage() {
         if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
     }, [logs])
 
-    const addLog = (text: string, status: MissionLog['status'] = 'info') => {
+    const addLog = (text: string | React.ReactNode, status: MissionLog['status'] = 'info') => {
         const t = new Date().toISOString().slice(11, 19)
         setLogs(prev => [...prev, { time: t, text, status }])
     }
@@ -92,7 +93,7 @@ export default function SimulationPage() {
         await delay(800)
         setMissionProgress(5)
 
-        addLog(`Target acquired: ${target.name}`, 'info')
+        addLog(<span>Target acquired: <strong>{target.name}</strong></span>, 'info')
         await delay(600)
         addLog(`Target altitude: ${target.altitudeKm.toLocaleString()} km`, 'info')
         await delay(400)
@@ -111,7 +112,7 @@ export default function SimulationPage() {
         setMissionProgress(15)
 
         // Phase 2: Delta-V calculation
-        addLog('Computing Hohmann transfer orbit...', 'info')
+        addLog(<span>Computing <GlossaryLink term="Hohmann Transfer">Hohmann transfer</GlossaryLink> orbit...</span>, 'info')
         await delay(900)
         addLog(`Starting orbit: ${startAlt} km`, 'info')
         await delay(300)
@@ -124,7 +125,7 @@ export default function SimulationPage() {
 
         if (!fuelOk) {
             await delay(600)
-            addLog(`⚠ ABORT: Insufficient fuel! Need ${deltaV.toFixed(1)} m/s but only have ${maxDeltaV.toFixed(1)} m/s`, 'error')
+            addLog(<span>⚠ ABORT: Insufficient fuel! Need {deltaV.toFixed(1)} m/s but only have {maxDeltaV.toFixed(1)} m/s</span>, 'error')
             addLog('Mission terminated — increase fuel or reduce spacecraft mass.', 'error')
             setMissionResult('fail')
             setPhase('COMPLETE')
@@ -155,7 +156,7 @@ export default function SimulationPage() {
 
         // Phase 4: Coast
         const coastMinutes = (transferTime / 60).toFixed(1)
-        addLog(`Coasting on Hohmann ellipse — estimated ${coastMinutes} minutes`, 'info')
+        addLog(<span>Coasting on <GlossaryLink term="Hohmann Transfer">Hohmann ellipse</GlossaryLink> — estimated {coastMinutes} minutes</span>, 'info')
         await delay(1200)
         setMissionProgress(60)
         addLog('Passing through Van Allen radiation belt...', 'warn')
@@ -178,7 +179,7 @@ export default function SimulationPage() {
 
         // Phase 6: Intercept + Capture
         await delay(700)
-        addLog(`Radar lock on ${target.name} — range: 2.4 km`, 'info')
+        addLog(<span>Radar lock on <strong>{target.name}</strong> — range: 2.4 km</span>, 'info')
         await delay(600)
         addLog('Closing at 12 m/s relative velocity...', 'info')
         setMissionProgress(90)
@@ -210,7 +211,7 @@ export default function SimulationPage() {
             addLog(`Copper: ${(target.materialProfile.copper * 100).toFixed(0)}% — ${(target.dryMassKg * target.materialProfile.copper).toFixed(0)} kg`, 'info')
             await delay(500)
 
-            addLog(`━━━ NET RESOURCE VALUE: $${nrv.toLocaleString('en-US', { maximumFractionDigits: 0 })} ━━━`, nrv > 0 ? 'ok' : 'warn')
+            addLog(<span>━━━ <GlossaryLink term="NRV">NET RESOURCE VALUE</GlossaryLink>: ${nrv.toLocaleString('en-US', { maximumFractionDigits: 0 })} ━━━</span>, nrv > 0 ? 'ok' : 'warn')
             setMissionProgress(100)
             setMissionResult('success')
         } else {
@@ -218,7 +219,7 @@ export default function SimulationPage() {
             audio.error()
             await delay(500)
             addLog('Target spinning beyond capture tolerance.', 'error')
-            addLog(`${target.name} is in ${target.decayStatus ? 'uncontrolled decay' : 'stable orbit'} — retrieval failed.`, 'error')
+            addLog(<span><strong>{target.name}</strong> is in {target.decayStatus ? 'uncontrolled decay' : 'stable orbit'} — retrieval failed.</span>, 'error')
             setMissionProgress(95)
             setMissionResult('fail')
         }
@@ -255,36 +256,6 @@ export default function SimulationPage() {
                     </p>
                 </motion.div>
 
-                {/* Graveyard CTA */}
-                <motion.div
-                    variants={fadeUp}
-                    className="glass"
-                    style={{
-                        padding: '16px 24px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: '16px',
-                        flexWrap: 'wrap',
-                        border: '1px solid rgba(232,132,92,0.25)',
-                    }}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Compass size={18} color="var(--coral)" />
-                        <p style={{ fontSize: '0.85rem', margin: 0, color: 'var(--signal)' }}>
-                            Want to try this with <strong style={{ color: 'var(--coral)' }}>real satellites</strong>?
-                            Explore tracked debris in the Graveyard.
-                        </p>
-                    </div>
-                    <button
-                        className="btn btn-coral"
-                        onClick={() => { setPage('GRAVEYARD'); audio.click() }}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap', fontSize: '0.7rem', padding: '8px 16px' }}
-                    >
-                        Visit Graveyard <ArrowRight size={12} />
-                    </button>
-                </motion.div>
-
                 {/* Progress bar */}
                 {(phase === 'RUNNING' || phase === 'COMPLETE') && (
                     <motion.div variants={fadeUp}>
@@ -300,7 +271,7 @@ export default function SimulationPage() {
                                     height: '100%', borderRadius: '3px',
                                     background: missionResult === 'fail'
                                         ? 'var(--red)'
-                                        : `linear-gradient(90deg, var(--coral), var(--gold))`,
+                                        : 'linear-gradient(90deg, var(--coral), var(--gold))',
                                 }}
                             />
                         </div>
@@ -398,10 +369,10 @@ export default function SimulationPage() {
                         <div className="glass" style={{ padding: '20px 24px' }}>
                             <div className="section-label">PRE-FLIGHT READOUT</div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginTop: '8px' }}>
-                                <ReadoutItem icon={<ArrowRight size={14} />} label="Required Δv" value={`${deltaV.toFixed(1)} m/s`} color="var(--coral)" />
-                                <ReadoutItem icon={<Fuel size={14} />} label="Max Available Δv" value={`${maxDeltaV.toFixed(1)} m/s`} color={fuelOk ? 'var(--green)' : 'var(--red)'} />
-                                <ReadoutItem icon={<Rocket size={14} />} label="Transfer Time" value={`${(transferTime / 60).toFixed(1)} min`} color="var(--gold)" />
-                                <ReadoutItem icon={<DollarSign size={14} />} label="Estimated NRV" value={`$${nrv.toLocaleString('en-US', { maximumFractionDigits: 0 })}`} color={nrv > 0 ? 'var(--gold)' : 'var(--red)'} />
+                                <ReadoutItem icon={<ArrowRight size={14} />} label={<span>Required <GlossaryLink term="Delta-V">Δv</GlossaryLink></span>} value={`${deltaV.toFixed(1)} m/s`} color="var(--coral)" />
+                                <ReadoutItem icon={<Fuel size={14} />} label={<span>Max Available <GlossaryLink term="Delta-V">Δv</GlossaryLink></span>} value={`${maxDeltaV.toFixed(1)} m/s`} color={fuelOk ? 'var(--green)' : 'var(--red)'} />
+                                <ReadoutItem icon={<Rocket size={14} />} label={<span>Transfer Time</span>} value={`${(transferTime / 60).toFixed(1)} min`} color="var(--gold)" />
+                                <ReadoutItem icon={<DollarSign size={14} />} label={<span>Estimated <GlossaryLink term="NRV">NRV</GlossaryLink></span>} value={`$${nrv.toLocaleString('en-US', { maximumFractionDigits: 0 })}`} color={nrv > 0 ? 'var(--gold)' : 'var(--red)'} />
                             </div>
 
                             <div style={{ textAlign: 'center', marginTop: '16px' }}>
@@ -498,7 +469,9 @@ export default function SimulationPage() {
                                             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 700, color: nrv > 0 ? 'var(--gold)' : 'var(--red)' }}>
                                                 {nrv > 0 ? '+' : ''}${nrv.toLocaleString('en-US', { maximumFractionDigits: 0 })}
                                             </div>
-                                            <div className="stat-label">NET RESOURCE VALUE</div>
+                                            <div className="stat-label">
+                                                <GlossaryLink term="NRV">NET RESOURCE VALUE</GlossaryLink>
+                                            </div>
                                             <div style={{ marginTop: '8px' }}>
                                                 <span className={`tag ${nrv > 0 ? 'green' : 'red'}`}>
                                                     {nrv > 0 ? 'PROFITABLE RECOVERY' : 'COST EXCEEDS VALUE'}
@@ -537,12 +510,12 @@ export default function SimulationPage() {
 }
 
 function SliderInput({ label, value, min, max, step, onChange, suffix = '' }: {
-    label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void; suffix?: string
+    label: string, value: number, min: number, max: number, step: number, onChange: (v: number) => void, suffix?: string
 }) {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <label className="mono" style={{ fontSize: '0.63rem', color: 'var(--gray)', letterSpacing: '1px' }}>{label}</label>
+                <label className="mono" style={{ fontSize: '0.63rem', color: 'rgba(242, 242, 242, 0.7)', letterSpacing: '1px' }}>{label}</label>
                 <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--signal)' }}>{value.toLocaleString()}{suffix}</span>
             </div>
             <input
@@ -558,7 +531,7 @@ function SliderInput({ label, value, min, max, step, onChange, suffix = '' }: {
     )
 }
 
-function ReadoutItem({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) {
+function ReadoutItem({ icon, label, value, color }: { icon: React.ReactNode, label: React.ReactNode, value: string, color: string }) {
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0' }}>
             <div style={{ color }}>{icon}</div>

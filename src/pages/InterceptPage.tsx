@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowUpRight, Gauge, Fuel, Info } from 'lucide-react'
 import { estimateDeltaV, tsiolkovskyFuelCheck } from '../lib/orbital'
+import GlossaryLink from '../components/GlossaryLink'
 
 const stagger = {
     hidden: { opacity: 0 },
@@ -59,7 +60,7 @@ export default function InterceptPage() {
                     <div className="section-label" style={{ textAlign: 'center' }}>INTERCEPT PLANNER</div>
                     <h2>How Do You <span className="gradient-text">Reach</span> Something in Orbit?</h2>
                     <p style={{ maxWidth: '650px', margin: '12px auto 0', fontSize: '0.95rem' }}>
-                        To move between orbits you need to change your velocity — that's called <strong>Delta-V (Δv)</strong>.
+                        To move between orbits you need to change your velocity — that's called <GlossaryLink term="Delta-V"><strong>Delta-V (Δv)</strong></GlossaryLink>.
                         The tools below calculate exactly how much you need and whether your spacecraft has enough fuel.
                     </p>
                 </motion.div>
@@ -69,7 +70,7 @@ export default function InterceptPage() {
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                         <Info size={18} color="var(--coral)" style={{ flexShrink: 0, marginTop: '2px' }} />
                         <div>
-                            <h3 style={{ fontSize: '1rem', marginBottom: '8px' }}>What is a Hohmann Transfer?</h3>
+                            <h3 style={{ fontSize: '1rem', marginBottom: '8px' }}>What is a <GlossaryLink term="Hohmann Transfer">Hohmann Transfer</GlossaryLink>?</h3>
                             <p style={{ fontSize: '0.85rem', lineHeight: 1.7, margin: 0 }}>
                                 The most fuel-efficient way to move between two circular orbits. You fire your engines <strong>twice</strong>:
                             </p>
@@ -139,7 +140,7 @@ export default function InterceptPage() {
                         <Info size={16} color="var(--coral)" style={{ flexShrink: 0, marginTop: '2px' }} />
                         <div>
                             <p style={{ fontSize: '0.8rem', margin: 0, lineHeight: 1.6 }}>
-                                The <strong>Tsiolkovsky Rocket Equation</strong> tells us the maximum velocity change a spacecraft can achieve
+                                The <GlossaryLink term="Tsiolkovsky Equation"><strong>Tsiolkovsky Rocket Equation</strong></GlossaryLink> tells us the maximum velocity change a spacecraft can achieve
                                 based on its fuel, dry mass, and engine efficiency (Isp). If your max Δv ≥ the required Δv, the mission is a go.
                             </p>
                             <p className="mono" style={{ fontSize: '0.7rem', marginTop: '8px', color: 'var(--gold)' }}>
@@ -218,7 +219,7 @@ function SliderInput({ label, value, min, max, step, onChange, suffix = '' }: {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <label className="mono" style={{ fontSize: '0.63rem', color: 'var(--gray)', letterSpacing: '1px' }}>{label}</label>
+                <label className="mono" style={{ fontSize: '0.63rem', color: 'rgba(242, 242, 242, 0.7)', letterSpacing: '1px' }}>{label}</label>
                 <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--signal)' }}>{value.toLocaleString()}{suffix}</span>
             </div>
             <input

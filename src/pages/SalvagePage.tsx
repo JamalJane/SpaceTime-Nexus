@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { DollarSign, Info } from 'lucide-react'
 import { SAMPLE_SATELLITES } from '../lib/sampleData'
 import { calcNRV } from '../lib/orbital'
+import GlossaryLink from '../components/GlossaryLink'
 
 const stagger = {
     hidden: { opacity: 0 },
@@ -101,13 +102,13 @@ export default function SalvagePage() {
                         <Info size={16} color="var(--coral)" style={{ flexShrink: 0, marginTop: '2px' }} />
                         <div>
                             <p style={{ fontSize: '0.8rem', margin: 0, lineHeight: 1.6 }}>
-                                <strong>How it works:</strong> NRV tells you if recovering a piece of space debris is profitable.
+                                <strong>How it works:</strong> <GlossaryLink term="NRV">NRV</GlossaryLink> tells you if recovering a piece of space debris is profitable.
                                 We take the <span style={{ color: 'var(--green)' }}>total value of metals inside</span>, then subtract
                                 the <span style={{ color: 'var(--red)' }}>fuel cost</span> (based on how much velocity change is needed)
                                 and <span style={{ color: 'var(--red)' }}>daily mission overhead</span>.
                             </p>
                             <p className="mono" style={{ fontSize: '0.7rem', marginTop: '8px', color: 'var(--gold)' }}>
-                                NRV = (Material Value) − (ΔV × $1,200/m·s⁻¹) − (Days × $4,500/day)
+                                <GlossaryLink term="NRV">NRV</GlossaryLink> = (Material Value) − (ΔV × $1,200/m·s⁻¹) − (Days × $4,500/day)
                             </p>
                         </div>
                     </div>
@@ -212,7 +213,7 @@ function SliderInput({ label, value, min, max, step, onChange, suffix = '' }: {
     return (
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <label className="mono" style={{ fontSize: '0.65rem', color: 'var(--gray)', letterSpacing: '1px' }}>{label}</label>
+                <label className="mono" style={{ fontSize: '0.65rem', color: 'rgba(242, 242, 242, 0.7)', letterSpacing: '1px' }}>{label}</label>
                 <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--signal)' }}>{value.toLocaleString()}{suffix}</span>
             </div>
             <input

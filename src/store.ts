@@ -15,13 +15,17 @@ export type Page =
 interface NavStore {
     page: Page
     hudEnabled: boolean
+    activeGlossaryTerm: string | null
     setPage: (p: Page) => void
     enableHud: () => void
+    setGlossaryTerm: (term: string) => void
 }
 
 export const useNavStore = create<NavStore>((set) => ({
     page: 'SPLASH',
     hudEnabled: false,
-    setPage: (page) => set({ page }),
-    enableHud: () => set({ hudEnabled: true, page: 'HOME' }),
+    activeGlossaryTerm: null,
+    setPage: (page) => set({ page, activeGlossaryTerm: null }),
+    enableHud: () => set({ hudEnabled: true, page: 'HOME', activeGlossaryTerm: null }),
+    setGlossaryTerm: (term) => set({ page: 'MISSION_PROFILE', activeGlossaryTerm: term }),
 }))

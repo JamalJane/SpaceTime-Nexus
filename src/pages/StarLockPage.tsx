@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Star, Navigation, Globe2, Compass, Info, ArrowRight } from 'lucide-react'
 import { useNavStore } from '../store'
+import GlossaryLink from '../components/GlossaryLink'
 
 const stagger = {
     hidden: { opacity: 0 },
@@ -176,7 +177,7 @@ export default function StarLockPage() {
                     <div className="section-label">WHY THIS MATTERS — THE DEBRIS CRISIS IN NUMBERS</div>
                     <p style={{ fontSize: '0.88rem', marginBottom: '24px', maxWidth: '600px' }}>
                         Every collision creates more fragments. More fragments cause more collisions.
-                        If we don't act, this <strong>Kessler Syndrome</strong> could make orbital space unusable within our lifetimes.
+                        If we don't act, this <GlossaryLink term="Kessler Syndrome"><strong>Kessler Syndrome</strong></GlossaryLink> could make orbital space unusable within our lifetimes.
                     </p>
 
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', marginBottom: '24px' }}>

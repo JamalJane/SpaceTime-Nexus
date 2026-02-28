@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, BookOpen, Cpu, Radio, Database } from 'lucide-react'
 import { audio } from '../lib/audio'
+import { useNavStore } from '../store'
+import GlossaryLink from '../components/GlossaryLink'
 
 const stagger = {
     hidden: { opacity: 0 },
@@ -19,7 +21,7 @@ Since Sputnik in 1957, we've launched over 13,000 satellites. Today, fewer than 
 functional. The rest — along with rocket bodies, lens caps, paint flecks, and fragments from
 over 600 breakup events — form an invisible minefield traveling at 7.8 km/s.
 
-At these speeds, a 1-cm fragment carries the kinetic energy of a hand grenade. A 10-cm object
+At these speeds, a 1-cm fragment carries the kinetic energy of a hand grenade. A 1-cm object
 hits like 7 kg of TNT. And unlike terrestrial pollution, orbital debris doesn't settle or decompose.
 Each collision creates more fragments, which create more collisions — the Kessler Syndrome.
 
@@ -48,6 +50,23 @@ const DIAGNOSTICS = [
 
 export default function MissionProfilePage() {
     const [openIdx, setOpenIdx] = useState<number | null>(null)
+    const { activeGlossaryTerm } = useNavStore()
+    const itemRefs = useRef<(HTMLDivElement | null)[]>([])
+
+    useEffect(() => {
+        if (activeGlossaryTerm) {
+            const idx = GLOSSARY.findIndex(g =>
+                g.term.toLowerCase().includes(activeGlossaryTerm.toLowerCase()) ||
+                activeGlossaryTerm.toLowerCase().includes(g.term.toLowerCase())
+            )
+            if (idx !== -1) {
+                setOpenIdx(idx)
+                setTimeout(() => {
+                    itemRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }, 100)
+            }
+        }
+    }, [activeGlossaryTerm])
 
     return (
         <div className="page-section" style={{ paddingTop: '100px', alignItems: 'center' }}>
@@ -58,21 +77,30 @@ export default function MissionProfilePage() {
                 animate="show"
                 style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '800px', margin: '0 auto' }}
             >
-                {/* Header */}
                 <motion.div variants={fadeUp} style={{ textAlign: 'center' }}>
                     <div className="section-label" style={{ textAlign: 'center' }}>MISSION PROFILE</div>
                     <h2>Understanding <span className="gradient-text">Space Debris</span></h2>
                 </motion.div>
 
-                {/* Narrative */}
                 <motion.div variants={fadeUp} className="glass" style={{ padding: '32px' }}>
                     <div className="section-label">THE CRISIS</div>
                     <p style={{ fontSize: '0.92rem', whiteSpace: 'pre-line', lineHeight: 1.85 }}>
-                        {NARRATIVE}
+                        Earth's orbit is a paradox: the most valuable real estate humanity has ever claimed,
+                        and the most polluted environment we've ever created.
+
+                        Since Sputnik in 1957, we've launched over 13,000 satellites. Today, fewer than 7,000 remain
+                        functional. The rest — along with rocket bodies, lens caps, paint flecks, and fragments from
+                        over 600 breakup events — form an invisible minefield traveling at 7.8 km/s.
+
+                        At these speeds, a 1-cm fragment carries the kinetic energy of a hand grenade. A 1-cm object
+                        hits like 7 kg of TNT. And unlike terrestrial pollution, orbital debris doesn't settle or decompose.
+                        Each collision creates more fragments, which create more collisions — the <GlossaryLink term="Kessler Syndrome">Kessler Syndrome</GlossaryLink>.
+
+                        Understanding this crisis isn't optional. It's existential. Without active debris management,
+                        we risk losing access to space within a generation.
                     </p>
                 </motion.div>
 
-                {/* System Diagnostics */}
                 <motion.div variants={fadeUp} className="glass" style={{ padding: '20px 24px' }}>
                     <div className="section-label">SYSTEM DIAGNOSTICS</div>
                     {DIAGNOSTICS.map((row) => (
@@ -89,11 +117,13 @@ export default function MissionProfilePage() {
                     ))}
                 </motion.div>
 
-                {/* Physics Glossary */}
                 <motion.div variants={fadeUp} className="glass" style={{ padding: '20px 24px' }}>
                     <div className="section-label">ORBITAL PHYSICS GLOSSARY</div>
                     {GLOSSARY.map((item, i) => (
-                        <div key={item.term} style={{ borderBottom: i < GLOSSARY.length - 1 ? '1px solid rgba(64,64,64,0.2)' : 'none' }}>
+                        <div
+                            key={item.term}
+                            ref={el => itemRefs.current[i] = el}
+                            style={{ borderBottom: i < GLOSSARY.length - 1 ? '1px solid rgba(64,64,64,0.2)' : 'none' }}>
                             <button
                                 onClick={() => {
                                     audio.click()
