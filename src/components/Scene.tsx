@@ -1,10 +1,9 @@
-import { Suspense, useRef, useMemo, lazy } from 'react'
+import { useRef, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Stars, OrbitControls } from '@react-three/drei'
+import { Stars } from '@react-three/drei'
 import * as THREE from 'three'
 import { generateDebrisCloud } from '../lib/sampleData'
-
-const InteractiveGlobe = lazy(() => import('./InteractiveGlobe'))
+import InteractiveGlobe from './InteractiveGlobe'
 
 // ─── Debris Point Cloud ─────────────────────────────────────
 function DebrisCloud() {
@@ -81,40 +80,28 @@ function AntigravityParticles() {
 }
 
 // ─── Scene Root ──────────────────────────────────────────────
+// Globe (react-globe.gl) renders its own WebGL canvas.
+// The R3F Canvas sits on top with transparent background for
+// stars, debris particles, and antigravity particles.
 export default function Scene() {
     return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+            {/* Globe layer — its own WebGL canvas */}
+            <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+                <InteractiveGlobe />
+            </div>
+
+            {/* Particle overlay — transparent R3F canvas on top */}
             <Canvas
+                style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}
                 dpr={[1, 1.5]}
                 frameloop="always"
-                gl={{ antialias: true, powerPreference: 'high-performance' }}
+                gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
                 camera={{ position: [0, 0, 3.5], fov: 45, near: 0.01, far: 100 }}
             >
-                <ambientLight intensity={0.2} />
-                <directionalLight position={[5, 3, 5]} intensity={1.5} color="#ffffff" />
-                <pointLight position={[-5, -3, -5]} intensity={0.4} color="#2a6db5" />
-
                 <Stars radius={80} depth={50} count={4000} factor={3} saturation={0} fade speed={0.5} />
-
-                {/* Suspense boundary for async texture loading */}
-                <Suspense fallback={null}>
-                    <InteractiveGlobe />
-                </Suspense>
-
                 <DebrisCloud />
                 <AntigravityParticles />
-
-                {/* Interactive drag/rotate/zoom — replaces CameraRig */}
-                <OrbitControls
-                    enablePan={false}
-                    enableZoom={true}
-                    minDistance={2}
-                    maxDistance={8}
-                    autoRotate
-                    autoRotateSpeed={0.3}
-                    enableDamping
-                    dampingFactor={0.05}
-                />
             </Canvas>
         </div>
     )
