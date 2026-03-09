@@ -385,6 +385,23 @@ p {
   animation: green-blink 1.2s ease-in-out infinite;
 }
 
+/* HUD pulse for debris harvester hero */
+@keyframes hud-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.hud-pulse {
+  animation: hud-pulse 1.2s ease-in-out infinite;
+}
+
 /* --- Gradient text utility --- */
 .gradient-text {
   background: linear-gradient(135deg, var(--coral), var(--peach), var(--gold));
