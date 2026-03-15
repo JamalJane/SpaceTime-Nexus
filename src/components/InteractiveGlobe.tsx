@@ -2,9 +2,9 @@ import { useEffect, useRef, useCallback, useMemo } from 'react'
 import Globe, { GlobeMethods } from 'react-globe.gl'
 import { DEFAULT_MARKERS, DEFAULT_CONNECTIONS } from '../lib/globeData'
 
-// ─── Texture URLs (same CDN used previously — reliable on Vercel) ────
-const GLOBE_IMAGE = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
-const BUMP_IMAGE = '//unpkg.com/three-globe/example/img/earth-topology.png'
+// ─── Texture URLs (https for reliability) ────
+const GLOBE_IMAGE = 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg'
+const BUMP_IMAGE = 'https://unpkg.com/three-globe/example/img/earth-topology.png'
 
 // ─── Build ring data from markers (pulsing rings at launch sites) ─────
 const RINGS_DATA = DEFAULT_MARKERS.map(m => ({

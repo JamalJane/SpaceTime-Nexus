@@ -38,7 +38,7 @@ function AntigravityParticles() {
     const count = 3000
 
     const basePositions = useMemo(() => {
-        const pos: { x: number; y: number; z: number; phase: number; speed: number }[] = []
+        const pos: { x: number; y: number; z: number; phase: number; speed: number; scale: number }[] = []
         for (let i = 0; i < count; i++) {
             const theta = Math.random() * Math.PI * 2
             const phi = Math.acos(2 * Math.random() - 1)
@@ -49,6 +49,7 @@ function AntigravityParticles() {
                 z: r * Math.sin(phi) * Math.sin(theta),
                 phase: Math.random() * Math.PI * 2,
                 speed: 0.004 + Math.random() * 0.008,
+                scale: 0.004 + Math.random() * 0.003,
             })
         }
         return pos
@@ -64,7 +65,7 @@ function AntigravityParticles() {
             const y = bp.y + Math.cos(t * bp.speed * 0.7 + bp.phase) * 0.06
             const z = bp.z + Math.sin(t * bp.speed * 1.3 + bp.phase) * 0.07
             dummy.position.set(x, y, z)
-            dummy.scale.setScalar(0.004 + Math.random() * 0.003)
+            dummy.scale.setScalar(bp.scale)
             dummy.updateMatrix()
             meshRef.current.setMatrixAt(i, dummy.matrix)
         }

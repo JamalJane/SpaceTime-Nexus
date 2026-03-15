@@ -1,5 +1,5 @@
-import DebrisHarvesterHero from '../components/hero/DebrisHarvesterHero'
+import { SplineHero } from '../components/hero/SplineHero'
 
 export default function SplashPage() {
-    return <DebrisHarvesterHero />
+    return <SplineHero />
 }

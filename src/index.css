@@ -1,6 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* =========================================================
    SPACETIME NEXUS — Global Stylesheet
-   Design System: Dark Cosmic / Glassmorphism / Informational
+   Design System: Dark Cosmic / Solid Surfaces / Informational
    ========================================================= */
 
 /* --- Fonts & Reset --- */
@@ -39,6 +43,11 @@
   --hud-margin: 24px;
   --sidebar-w: 380px;
   --section-max: 1200px;
+
+  /* Card (shadcn-style) */
+  --card: #0D0D0D;
+  --card-foreground: #F2F2F2;
+  --muted-foreground: #a3783a;
 }
 
 html {
@@ -68,6 +77,21 @@ body,
 ::-webkit-scrollbar-thumb {
   background: var(--gray);
   border-radius: 2px;
+}
+
+/* Loader for Spline / async fallbacks */
+.loader {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--gray);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: loader-spin 0.8s linear infinite;
+}
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* --- Typography --- */
@@ -132,21 +156,17 @@ p {
   margin-bottom: 12px;
 }
 
-/* --- Glassmorphism Card --- */
+/* --- Solid Surface Cards --- */
 .glass {
-  background: rgba(13, 13, 13, 0.75);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(64, 64, 64, 0.5);
-  border-radius: 16px;
+  background: #111111;
+  border: 1px solid #222222;
+  border-radius: 6px;
 }
 
 .glass-warm {
-  background: linear-gradient(135deg, rgba(232, 132, 92, 0.08), rgba(139, 92, 246, 0.06));
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(232, 132, 92, 0.2);
-  border-radius: 16px;
+  background: #131110;
+  border: 1px solid #2a2018;
+  border-radius: 6px;
 }
 
 /* --- Buttons --- */
@@ -162,7 +182,7 @@ p {
   color: var(--signal);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 50px;
+  border-radius: 4px;
 }
 
 .btn:hover {
@@ -202,7 +222,7 @@ p {
   letter-spacing: 1px;
   text-transform: uppercase;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 4px;
   border: 1px solid currentColor;
 }
 
@@ -255,8 +275,7 @@ p {
 }
 
 .info-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border-color: #333333;
 }
 
 /* --- Stat Strip --- */
@@ -424,24 +443,97 @@ p {
 }
 
 /* CardNav classes */
+/* --- Floating combined nav bar --- */
 .card-nav-bar {
   position: fixed;
-  bottom: var(--hud-margin);
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
+  padding-top: 16px;
+  pointer-events: none;
+}
+
+.card-nav-inner {
   display: flex;
-  gap: 4px;
-  padding: 8px 12px;
-  background: rgba(13, 13, 13, 0.88);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(64, 64, 64, 0.5);
-  border-radius: 40px;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  background: #0a0a0a;
+  border: 1px solid #1a1a1a;
+  border-radius: 6px;
   pointer-events: all;
 }
 
-.card-nav-label {
-  display: inline;
+.card-nav-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 4px;
+  padding: 8px;
+  background: transparent;
+  color: #555;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.25s, background 0.25s;
+  overflow: visible;
+}
+
+.card-nav-btn:hover {
+  color: #999;
+  background: #111;
+}
+
+.card-nav-btn.active {
+  color: var(--gold);
+  background: rgba(255, 215, 0, 0.06);
+}
+
+.card-nav-expanded-label {
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Tubelight glow effect */
+.card-nav-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.card-nav-glow-bar {
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 1px 1px 0 0;
+}
+
+.card-nav-glow-blur {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 12px;
+  background: rgba(255, 215, 0, 0.15);
+  border-radius: 50%;
+  filter: blur(6px);
 }
 
 .mobile-nav-toggle {
@@ -496,22 +588,8 @@ p {
     gap: 12px;
   }
 
-  /* CardNav: icons only */
-  .card-nav-label {
-    display: none;
-  }
-
-  .card-nav-bar {
-    gap: 2px;
-    padding: 6px 10px;
-  }
-
-  .glass {
-    border-radius: 12px;
-  }
-
-  .glass-warm {
-    border-radius: 12px;
+  .info-card:hover {
+    transform: none;
   }
 
   .stat-value {
@@ -547,7 +625,6 @@ p {
     padding: 50px 12px;
   }
 
-  /* CardNav: hamburger mode */
   .card-nav-bar {
     display: none !important;
   }
